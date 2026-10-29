@@ -5,6 +5,7 @@ from database import verify_admin
 
 # Blueprints import karo
 from modules.students import students_bp
+from modules.fees import fees_bp
 from modules.auth import login_required
 
 app = Flask(__name__)
@@ -14,6 +15,7 @@ Session(app)
 
 # Blueprint Register karo
 app.register_blueprint(students_bp)
+app.register_blueprint(fees_bp)
 
 @app.route("/")
 def home():
