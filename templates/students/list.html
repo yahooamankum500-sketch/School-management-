@@ -1,1 +1,25 @@
-
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Students List</h2>
+        <a href="/students/add" class="btn">+ Add Student</a>
+    </div>
+    <table>
+        <tr>
+            <th>ID</th><th>Name</th><th>Roll</th><th>Class</th><th>Parent Phone</th>
+        </tr>
+        {% for s in students %}
+        <tr>
+            <td>{{ s[0] }}</td>
+            <td><strong>{{ s[1] }}</strong></td>
+            <td>{{ s[2] or '-' }}</td>
+            <td>{{ s[3] or '-' }} {{ s[4] or '' }}</td>
+            <td>{{ s[5] or '-' }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="text-align:center;">Koi student nahi mila.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
