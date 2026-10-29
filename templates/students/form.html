@@ -1,1 +1,22 @@
-
+{% extends "base.html" %}
+{% block content %}
+<div class="card" style="max-width:500px; margin:auto;">
+    <h2>Add New Student</h2>
+    <form method="POST">
+        <label>Name *</label><br>
+        <input type="text" name="name" required style="width:100%; padding:8px; margin-bottom:10px;"><br>
+        
+        <label>Roll No</label><br>
+        <input type="text" name="roll_no" style="width:100%; padding:8px; margin-bottom:10px;"><br>
+        
+        <label>Class</label><br>
+        <input type="text" name="class_name" style="width:100%; padding:8px; margin-bottom:10px;"><br>
+        
+        <label>Parent Phone</label><br>
+        <input type="text" name="parent_phone" style="width:100%; padding:8px; margin-bottom:15px;"><br>
+        
+        <button type="submit" class="btn">Save Student</button>
+        <a href="/students/" style="margin-left:10px; color:#666;">Cancel</a>
+    </form>
+</div>
+{% endblock %}
