@@ -1,12 +1,19 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_session import Session
 from database import verify_admin
+
+# Blueprints import karo
+from modules.students import students_bp
+from modules.auth import login_required
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev-secret-change-me")
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+# Blueprint Register karo
+app.register_blueprint(students_bp)
 
 @app.route("/")
 def home():
@@ -24,25 +31,14 @@ def login():
             session["admin_name"] = admin["full_name"] or admin["username"]
             return redirect(url_for("dashboard"))
             
-        return "Galat Username ya Password. <br><a href='/login'>Wapas try karein</a>"
+        flash("Galat Username ya Password", "error")
         
-    # Ek basic HTML string taaki pehle template banane ki zaroorat na pade
-    return """
-    <div style="font-family:sans-serif; max-width:300px; margin:50px auto; padding:20px; border:1px solid #ccc; border-radius:10px;">
-        <h2>Admin Login</h2>
-        <form method="POST">
-            <input name="username" placeholder="Username" style="width:100%; padding:10px; margin-bottom:10px;"><br>
-            <input name="password" type="password" placeholder="Password" style="width:100%; padding:10px; margin-bottom:10px;"><br>
-            <button type="submit" style="width:100%; padding:10px; background:#1e293b; color:white; border:none; border-radius:5px;">Login</button>
-        </form>
-    </div>
-    """
+    return render_template("login.html")
 
 @app.route("/dashboard")
+@login_required
 def dashboard():
-    if "admin_id" not in session:
-        return redirect(url_for("login"))
-    return f"Welcome {session['admin_name']}! App successfully chal raha hai. <br><a href='/logout'>Logout</a>"
+    return render_template("dashboard.html")
 
 @app.route("/logout")
 def logout():
