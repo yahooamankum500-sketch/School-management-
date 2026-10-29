@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>School Management</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; margin: 0; background: #f5f6fa; display: flex; }
+        .sidebar { width: 220px; background: #1e293b; color: white; min-height: 100vh; padding: 20px 0; }
+        .sidebar a { display: block; color: #cbd5e1; padding: 10px 20px; text-decoration: none; }
+        .sidebar a:hover { background: #334155; color: white; }
+        .main { flex: 1; padding: 20px; }
+        .topbar { background: white; padding: 15px 20px; display: flex; justify-content: space-between; margin-bottom: 20px; border-radius: 8px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .btn { padding: 8px 15px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block;}
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2 style="text-align:center;">🎓 School ERP</h2>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/students/">Students</a>
+        <hr style="border-color:#334155;">
+        <a href="/logout" style="color:#ef4444;">Logout</a>
+    </div>
+    <div class="main">
+        <div class="topbar">
+            <strong>Welcome, {{ session.admin_name }}</strong>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for cat, msg in messages %}
+                <div style="padding:10px; margin-bottom:15px; border-radius:5px; background:{{ '#fee2e2' if cat=='error' else '#d1fae5' }}; color:{{ '#991b1b' if cat=='error' else '#065f46' }};">{{ msg }}</div>
+            {% endfor %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
