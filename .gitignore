@@ -1,12 +1,1 @@
-.env
-.venv/
-venv/
-__pycache__/
-*.py[cod]
-*.log
-.pytest_cache/
-.DS_Store
-*.pyc
-*.pyo
-*.db
-venv*/
+
