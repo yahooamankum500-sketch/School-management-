@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | School Work{% endblock %}
+
+{% block heading %}School Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="welcome">
+    <h1>Welcome to School Work ERP 👋</h1>
+    <p>Manage your complete school from one platform.</p>
+</div>
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <span>Total Students</span>
+        <h2>0</h2>
+        <small>Student Records</small>
+    </div>
+
+    <div class="stat-card">
+        <span>Total Teachers</span>
+        <h2>0</h2>
+        <small>Teaching Staff</small>
+    </div>
+
+    <div class="stat-card">
+        <span>Today's Attendance</span>
+        <h2>0%</h2>
+        <small>Daily Attendance</small>
+    </div>
+
+    <div class="stat-card">
+        <span>Pending Fees</span>
+        <h2>₹0</h2>
+        <small>Fee Collection</small>
+    </div>
+
+</div>
+
+<div class="section-card">
+    <h2>System Status</h2>
+
+    <p>
+        Application:
+        <span class="status-online">Running</span>
+    </p>
+
+    <p>
+        Database:
+        <span class="status-pending">Setup Pending</span>
+    </p>
+
+    <p>
+        Deployment:
+        <span class="status-pending">In Progress</span>
+    </p>
+</div>
+
+<div class="section-card">
+    <h2>Quick Actions</h2>
+
+    <div class="quick-actions">
+        <button>Add Student</button>
+        <button>Collect Fees</button>
+        <button>Mark Attendance</button>
+        <button>Generate Report</button>
+    </div>
+</div>
+
+{% endblock %}
