@@ -1,8 +1,5 @@
 from functools import wraps
-from flask import (
-    Blueprint, render_template, request, redirect,
-    url_for, session, flash
-)
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database import verify_admin
 
 auth_bp = Blueprint("auth", __name__)
@@ -23,12 +20,13 @@ def login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
+        
         admin = verify_admin(username, password)
         if admin:
             session["admin_id"] = admin["id"]
             session["admin_name"] = admin["full_name"] or admin["username"]
             return redirect(url_for("dashboard"))
-        flash("Galat username ya password", "error")
+        flash("Galat Username ya Password", "error")
 
     return render_template("login.html")
 
