@@ -19,7 +19,7 @@ def home():
 @login_required
 def dashboard():
     return render_template("dashboard.html")
-    # ============================================================
+# ============================================================
 # TEMPORARY ROUTE: First Admin Setup (No Shell Needed)
 # ============================================================
 @app.route("/setup-admin-xyz")
