@@ -1,67 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>{% block title %}School Work ERP{% endblock %}</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-
-    <script defer
-            src="{{ url_for('static', filename='js/app.js') }}">
-    </script>
+    <title>School ERP</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; display: flex; }
+        .sidebar { width: 200px; background: #1e293b; color: white; height: 100vh; padding: 20px; }
+        .sidebar a { color: #cbd5e1; display: block; padding: 10px 0; text-decoration: none; }
+        .main { flex: 1; padding: 20px; background: #f5f6fa; }
+        .flash { padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        .flash.error { background: #fee2e2; color: #991b1b; }
+        .flash.success { background: #d1fae5; color: #065f46; }
+    </style>
 </head>
-
 <body>
-
-<div class="app-layout">
-
-    <aside class="sidebar">
-        <div class="brand">
-            🎓 SCHOOL WORK
-            <small>Management ERP</small>
-        </div>
-
-        <nav>
-            <a href="/">Dashboard</a>
-            <a href="#">Students</a>
-            <a href="#">Teachers</a>
-            <a href="#">Attendance</a>
-            <a href="#">Fees Management</a>
-            <a href="#">Examinations</a>
-            <a href="#">Reports</a>
-            <a href="#">Settings</a>
-        </nav>
-    </aside>
-
-    <main class="main-content">
-
-        <header class="topbar">
-            <div>
-                <h2>{% block heading %}Dashboard{% endblock %}</h2>
-                <span>School Management System</span>
-            </div>
-
-            <div class="admin-profile">
-                <span>Administrator</span>
-                <div class="avatar">A</div>
-            </div>
-        </header>
-
-        <section class="page-content">
-            {% block content %}{% endblock %}
-        </section>
-
-        <footer>
-            © 2026 School Work ERP. All rights reserved.
-        </footer>
-
-    </main>
-
-</div>
-
+    <div class="sidebar">
+        <h2>🎓 School ERP</h2>
+        <a href="/dashboard">Dashboard</a>
+        <!-- Aage chalkar yahan links add honge -->
+        <a href="/logout" style="color:#ef4444; margin-top:50px;">Logout</a>
+    </div>
+    <div class="main">
+        <h3>Welcome, {{ session.admin_name }}</h3>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for cat, msg in messages %}
+                <div class="flash {{ cat }}">{{ msg }}</div>
+            {% endfor %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>
