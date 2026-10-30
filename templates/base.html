@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}School Work ERP{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <script defer
+            src="{{ url_for('static', filename='js/app.js') }}">
+    </script>
+</head>
+
+<body>
+
+<div class="app-layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            🎓 SCHOOL WORK
+            <small>Management ERP</small>
+        </div>
+
+        <nav>
+            <a href="/">Dashboard</a>
+            <a href="#">Students</a>
+            <a href="#">Teachers</a>
+            <a href="#">Attendance</a>
+            <a href="#">Fees Management</a>
+            <a href="#">Examinations</a>
+            <a href="#">Reports</a>
+            <a href="#">Settings</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <h2>{% block heading %}Dashboard{% endblock %}</h2>
+                <span>School Management System</span>
+            </div>
+
+            <div class="admin-profile">
+                <span>Administrator</span>
+                <div class="avatar">A</div>
+            </div>
+        </header>
+
+        <section class="page-content">
+            {% block content %}{% endblock %}
+        </section>
+
+        <footer>
+            © 2026 School Work ERP. All rights reserved.
+        </footer>
+
+    </main>
+
+</div>
+
+</body>
+</html>
