@@ -1,7 +1,0 @@
-Flask
-gunicorn
-supabase
-python-dotenv
-Werkzeug
-psycopg2-binary
-flask-session
