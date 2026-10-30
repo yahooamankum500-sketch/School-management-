@@ -19,24 +19,26 @@ def home():
 @login_required
 def dashboard():
     return render_template("dashboard.html")
-
-# ============================================================
-# TEMPORARY ROUTE: First Admin Setup (No Shell Needed)
-# ============================================================
 @app.route("/setup-admin-xyz")
 def setup_admin_xyz():
-    from database import create_admin, get_admin_by_username
-    
-    # Check karo ki admin pehle se toh nahi hai
-    if get_admin_by_username("admin"):
-        return "Admin pehle se bana hua hai! Ab is route ko delete kar dena."
-    
     try:
-        # Naya admin banao
+        from database import create_admin, get_admin_by_username
+        
+        if get_admin_by_username("admin"):
+            return "Admin pehle se bana hua hai! Ab is route ko delete kar dena."
+        
         create_admin("admin", "admin123", "Principal")
-        return "✅ Admin successfully ban gaya!<br>Username: admin<br>Password: admin123<br><br><b>Ab is route ko app.py se hata dena!</b>"
+        return "✅ Admin successfully ban gaya!<br>Username: admin<br>Password: admin123"
+    
     except Exception as e:
-        return f"❌ Error: {str(e)}"
+        import traceback
+        error_details = traceback.format_exc()
+        return f"""
+        <h2>❌ Error Aaya:</h2>
+        <p style="color:red; font-weight:bold;">{str(e)}</p>
+        <h3>Full Details (Screenshot bhejna):</h3>
+        <pre style="background:#f4f4f4; padding:10px;">{error_details}</pre>
+        """
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
