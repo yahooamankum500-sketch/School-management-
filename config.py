@@ -24,6 +24,7 @@ class Config:
     TESTING = False
 
     # Session Configuration
+    SESSION_TYPE = "filesystem"
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True
     SESSION_COOKIE_HTTPONLY = True
