@@ -25,6 +25,7 @@ class Config:
 
     # Session Configuration
     SESSION_TYPE = "filesystem"
+    SESSION_FILE_DIR = "/tmp/flask_sessions" 
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True
     SESSION_COOKIE_HTTPONLY = True
