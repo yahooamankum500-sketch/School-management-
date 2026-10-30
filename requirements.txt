@@ -1,6 +1,0 @@
-flask
-flask-session
-psycopg2-binary
-python-dotenv
-gunicorn
-werkzeug
