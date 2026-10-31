@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+    
+    <!-- LEFT SIDE: FORMS -->
+    <div>
+        <!-- Add Book Form -->
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3>Add New Book</h3>
+            <form method="POST" action="/library/add">
+                <input type="text" name="title" placeholder="Book Title" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <input type="text" name="author" placeholder="Author Name" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <input type="number" name="total_copies" placeholder="Total Copies" value="1" min="1" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <button type="submit" style="background:#3b82f6; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; width:100%;">+ Add Book</button>
+            </form>
+        </div>
+
+        <!-- Issue Book Form -->
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Issue Book</h3>
+            <form method="POST" action="/library/issue">
+                <select name="book_id" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="">Select Book (Available)</option>
+                    {% for b in books %}
+                        {% if b.available_copies > 0 %}
+                        <option value="{{ b.id }}">{{ b.title }} ({{ b.available_copies }} left)</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <select name="student_id" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="">Select Student</option>
+                    {% for s in students %}
+                    <option value="{{ s.id }}">{{ s.name }} (Class {{ s.class_name }})</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" style="background:#f59e0b; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; width:100%;">Issue Book</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: LISTS -->
+    <div>
+        <!-- Issued Books List -->
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3>Currently Issued Books</h3>
+            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                <tr style="background:#f8fafc;">
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">Book</th>
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">Student</th>
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">Date</th>
+                    <th style="padding:8px; text-align:right; border-bottom:1px solid #ddd;">Action</th>
+                </tr>
+                {% for i in issues %}
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #eee;"><strong>{{ i.book_title }}</strong></td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">{{ i.student_name }}<br><small style="color:#666;">{{ i.class_name }}</small></td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; font-size:12px;">{{ i.issue_date }}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">
+                        <form method="POST" action="/library/return/{{ i.id }}" style="display:inline;">
+                            <button type="submit" style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">Return</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" style="padding:15px; text-align:center; color:#666;">Koi book issue nahi hui hai.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- All Books List -->
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>All Books Library</h3>
+            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                <tr style="background:#f8fafc;">
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">Title</th>
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">Author</th>
+                    <th style="padding:8px; text-align:center; border-bottom:1px solid #ddd;">Available</th>
+                </tr>
+                {% for b in books %}
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #eee;"><strong>{{ b.title }}</strong></td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">{{ b.author or '-' }}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; text-align:center; font-weight:bold; color:{% if b.available_copies > 0 %}#10b981{% else %}#ef4444{% endif %};">
+                        {{ b.available_copies }} / {{ b.total_copies }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" style="padding:15px; text-align:center; color:#666;">Library mein koi book nahi hai.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
