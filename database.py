@@ -505,3 +505,83 @@ def get_students_on_route(route_id):
                 "pickup_time": stop.get("pickup_time")
             })
     return result
+    # ============================================================
+# PHASE 11: HOSTEL MANAGEMENT
+# ============================================================
+def create_hostel(data):
+    return db_insert("hostels", {
+        "name": data.get("name"),
+        "warden_name": data.get("warden_name"),
+        "warden_phone": data.get("warden_phone")
+    })
+
+def get_hostels():
+    return db_select("hostels", order_by="name")
+
+def create_hostel_room(hostel_id, data):
+    return db_insert("hostel_rooms", {
+        "hostel_id": hostel_id,
+        "room_no": data.get("room_no"),
+        "capacity": int(data.get("capacity") or 4),
+        "fee": float(data.get("fee") or 0)
+    })
+
+def get_hostel_rooms(hostel_id):
+    # Rooms fetch karo
+    rooms = db_select("hostel_rooms", {"hostel_id": hostel_id}, order_by="room_no")
+    
+    # Har room mein kitne students hain, calculate karo
+    allocations = db_select("hostel_allocations", {"status": "active"})
+    
+    for room in rooms:
+        occupied = sum(1 for a in allocations if a["room_id"] == room["id"])
+        room["occupied"] = occupied
+        room["available"] = room["capacity"] - occupied
+        
+    return rooms
+
+def allocate_hostel_room(student_id, room_id):
+    # Check karo room full toh nahi hai
+    allocations = db_select("hostel_allocations", {"room_id": room_id, "status": "active"})
+    room = db_get("hostel_rooms", room_id)
+    
+    if not room:
+        raise ValueError("Room nahi mila.")
+    if len(allocations) >= room["capacity"]:
+        raise ValueError("Ye room full hai.")
+        
+    # Upsert (agar pehle se kisi room mein hai toh shift ho jayega)
+    return db_upsert("hostel_allocations", {
+        "student_id": student_id,
+        "room_id": room_id,
+        "status": "active"
+    }, on_conflict="student_id")
+
+def checkout_hostel(student_id):
+    return db_update("hostel_allocations", student_id, {"status": "checked_out"}, id_column="student_id")
+
+def get_hostel_inmates(hostel_id):
+    # Us hostel ke saare rooms ki IDs nikaalo
+    rooms = db_select("hostel_rooms", {"hostel_id": hostel_id})
+    room_ids = [r["id"] for r in rooms]
+    
+    if not room_ids:
+        return []
+        
+    # Sirf un rooms ki active allocations fetch karo
+    allocations = db_select("hostel_allocations", {"status": "active"})
+    active_allocs = [a for a in allocations if a["room_id"] in room_ids]
+    
+    result = []
+    for a in active_allocs:
+        student = db_get("students", a["student_id"])
+        room = db_get("hostel_rooms", a["room_id"])
+        if student and room:
+            result.append({
+                "student_id": student["id"],
+                "student_name": student["name"],
+                "class_name": student["class_name"],
+                "room_no": room["room_no"],
+                "check_in": a["created_at"][:10]
+            })
+    return result
