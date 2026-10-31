@@ -56,17 +56,6 @@ def index():
 def dashboard():
     return render_template("dashboard.html")
 
-@app.route("/setup-teacher")
-def setup_teacher():
-    try:
-        from database import create_teacher_account
-        # ध्यान दें: यह फंक्शन database.py में होना चाहिए
-        create_teacher_account("Test Teacher", "9999999999", "teacher123", "5", "A")
-        return "✅ Teacher Account ban gaya!<br>Phone: 9999999999<br>Pass: teacher123<br>Class: 5A"
-    except Exception as e:
-        # यहाँ Syntax Error था, जिसे ठीक कर दिया गया है
-        return f"Error: {e}"
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
