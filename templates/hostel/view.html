@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:20px;">
+    <a href="/hostel/" style="color:#666; text-decoration:none;">← Back to All Hostels</a>
+    <h2 style="color:#1e293b; margin-top:10px;">🏠 {{ hostel.name }}</h2>
+    <p style="color:#475569;">Warden: {{ hostel.warden_name }} ({{ hostel.warden_phone }})</p>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <!-- LEFT: Rooms -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3>Add Room</h3>
+            <form method="POST" action="/hostel/{{ hostel.id }}/add-room">
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" name="room_no" placeholder="Room No (e.g. 101)" required style="flex:2; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                    <input type="number" name="capacity" placeholder="Capacity" value="4" min="1" required style="flex:1; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                    <input type="number" name="fee" placeholder="Fee/mo" value="0" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                </div>
+                <button type="submit" style="background:#f59e0b; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; width:100%;">+ Add Room</button>
+            </form>
+        </div>
+
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Rooms List</h3>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr style="background:#f8fafc;">
+                    <th style="padding:8px; text-align:left;">Room</th>
+                    <th style="padding:8px; text-align:center;">Occupancy</th>
+                    <th style="padding:8px; text-align:right;">Fee</th>
+                </tr>
+                {% for r in rooms %}
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #eee;"><strong>{{ r.room_no }}</strong></td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; text-align:center; font-weight:bold; color:{% if r.available > 0 %}#10b981{% else %}#ef4444{% endif %};">
+                        {{ r.occupied }} / {{ r.capacity }}
+                    </td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">₹{{ "%.0f"|format(r.fee) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" style="padding:15px; text-align:center; color:#666;">Koi room nahi hai.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <!-- RIGHT: Allocations -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3>Allocate Student to Room</h3>
+            {% if rooms %}
+            <form method="POST" action="/hostel/allocate">
+                <input type="hidden" name="hostel_id" value="{{ hostel.id }}">
+                
+                <select name="student_id" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="">Select Student</option>
+                    {% for s in all_students %}
+                    <option value="{{ s.id }}">{{ s.name }} (Class {{ s.class_name }})</option>
+                    {% endfor %}
+                </select>
+                
+                <select name="room_id" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="">Select Room (Available)</option>
+                    {% for r in rooms %}
+                        {% if r.available > 0 %}
+                        <option value="{{ r.id }}">Room {{ r.room_no }} ({{ r.available }} beds left)</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                
+                <button type="submit" style="background:#10b981; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; width:100%;">Allocate Room</button>
+            </form>
+            {% else %}
+            <p style="color:#ef4444; font-size:14px;">Pehle koi room add karo, phir student allocate kar paoge.</p>
+            {% endif %}
+        </div>
+
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Current Inmates</h3>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr style="background:#f8fafc;">
+                    <th style="padding:8px; text-align:left;">Student</th>
+                    <th style="padding:8px; text-align:left;">Room</th>
+                    <th style="padding:8px; text-align:right;">Action</th>
+                </tr>
+                {% for i in inmates %}
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">
+                        <strong>{{ i.student_name }}</strong><br>
+                        <small style="color:#666;">{{ i.class_name }}</small>
+                    </td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">Room {{ i.room_no }}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">
+                        <form method="POST" action="/hostel/checkout/{{ i.student_id }}" onsubmit="return confirm('Checkout this student?');">
+                            <input type="hidden" name="hostel_id" value="{{ hostel.id }}">
+                            <button type="submit" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">Checkout</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" style="padding:15px; text-align:center; color:#666;">Koi student nahi hai.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
