@@ -125,3 +125,56 @@ def update_student(student_id, data):
 
 def delete_student(student_id):
     return db_delete("students", student_id)
+    # ============================================================
+# PHASE 3: FEES MANAGEMENT
+# ============================================================
+import random
+from datetime import datetime
+
+def create_fee_structure(class_name, fee_type, amount, frequency):
+    return db_insert("fee_structure", {
+        "class_name": class_name,
+        "fee_type": fee_type,
+        "amount": float(amount),
+        "frequency": frequency
+    })
+
+def get_fee_structures(class_name=None):
+    filters = {"class_name": class_name} if class_name else None
+    return db_select("fee_structure", filters, order_by="class_name")
+
+def delete_fee_structure(fid):
+    return db_delete("fee_structure", fid)
+
+def create_fee_payment(student_id, fee_type, amount, month, mode, note, admin_id):
+    # Auto generate receipt number
+    receipt_no = f"RCPT-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
+    
+    return db_insert("fee_payments", {
+        "student_id": student_id,
+        "fee_type": fee_type,
+        "amount": float(amount),
+        "month": month,
+        "mode": mode,
+        "receipt_no": receipt_no,
+        "note": note,
+        "recorded_by": admin_id
+    })
+
+def get_recent_payments(limit=50):
+    # Supabase mein direct JOIN karna thoda complex hota hai, 
+    # isliye hum simple approach lenge: payments fetch karo, phir student name fetch karo.
+    payments = db_select("fee_payments", order_by="paid_at", descending=True, limit=limit)
+    
+    # Fetch student names
+    from database import db_get # helper import
+    for p in payments:
+        student = db_get("students", p["student_id"])
+        if student:
+            p["student_name"] = student.get("name", "Unknown")
+            p["class_name"] = student.get("class_name", "-")
+        else:
+            p["student_name"] = "Unknown"
+            p["class_name"] = "-"
+            
+    return payments
