@@ -36,6 +36,14 @@ def home():
 @login_required
 def dashboard():
     return render_template("dashboard.html")
+    @app.route("/setup-teacher")
+def setup_teacher():
+    from database import create_teacher_account
+    try:
+        create_teacher_account("Test Teacher", "9999999999", "teacher123", "5", "A")
+        return "✅ Teacher Account ban gaya!<br>Phone: 9999999999<br>Pass: teacher123<br>Class: 5A"
+    except Exception as e:
+        return f"Error: {e}"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
