@@ -1,1 +1,99 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:20px;">
+    <a href="/transport/" style="color:#666; text-decoration:none;">← Back to All Routes</a>
+    <h2 style="color:#1e293b; margin-top:10px;">🚌 {{ route.route_name }}</h2>
+    <p style="color:#475569;">Driver: {{ route.driver_name }} ({{ route.driver_phone }}) | Vehicle: {{ route.vehicle_no }}</p>
+</div>
 
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <!-- LEFT: Stops Management -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3>Add Bus Stop</h3>
+            <form method="POST" action="/transport/route/{{ route.id }}/add-stop">
+                <input type="text" name="stop_name" placeholder="Stop Name (e.g. Civil Lines)" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" name="pickup_time" placeholder="Pickup Time (07:30 AM)" style="flex:2; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                    <input type="number" name="sequence" placeholder="Seq (1, 2...)" value="1" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                </div>
+                <button type="submit" style="background:#f59e0b; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; width:100%;">+ Add Stop</button>
+            </form>
+        </div>
+
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Stops List (In Sequence)</h3>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr style="background:#f8fafc;">
+                    <th style="padding:8px; text-align:left;">Seq</th>
+                    <th style="padding:8px; text-align:left;">Stop Name</th>
+                    <th style="padding:8px; text-align:left;">Pickup Time</th>
+                </tr>
+                {% for s in stops %}
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">{{ s.sequence }}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;"><strong>{{ s.stop_name }}</strong></td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">{{ s.pickup_time or '-' }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" style="padding:15px; text-align:center; color:#666;">Koi stop nahi hai.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <!-- RIGHT: Student Assignment -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3>Assign Student to Bus</h3>
+            {% if stops %}
+            <form method="POST" action="/transport/assign">
+                <input type="hidden" name="route_id" value="{{ route.id }}">
+                
+                <select name="student_id" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="">Select Student</option>
+                    {% for s in all_students %}
+                    <option value="{{ s.id }}">{{ s.name }} (Class {{ s.class_name }})</option>
+                    {% endfor %}
+                </select>
+                
+                <select name="stop_id" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="">Select Stop</option>
+                    {% for st in stops %}
+                    <option value="{{ st.id }}">{{ st.sequence }}. {{ st.stop_name }} ({{ st.pickup_time }})</option>
+                    {% endfor %}
+                </select>
+                
+                <button type="submit" style="background:#10b981; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; width:100%;">Assign to Bus</button>
+            </form>
+            {% else %}
+            <p style="color:#ef4444; font-size:14px;">Pehle koi stop add karo, phir student assign kar paoge.</p>
+            {% endif %}
+        </div>
+
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Students on this Route</h3>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr style="background:#f8fafc;">
+                    <th style="padding:8px; text-align:left;">Student</th>
+                    <th style="padding:8px; text-align:left;">Stop</th>
+                </tr>
+                {% for s in students %}
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">
+                        <strong>{{ s.student_name }}</strong><br>
+                        <small style="color:#666;">{{ s.class_name }}</small>
+                    </td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">
+                        {{ s.stop_name }}<br>
+                        <small style="color:#666;">{{ s.pickup_time }}</small>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="2" style="padding:15px; text-align:center; color:#666;">Koi student assign nahi hua.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
