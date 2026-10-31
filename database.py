@@ -178,7 +178,7 @@ def get_recent_payments(limit=50):
             p["class_name"] = "-"
             
     return payments
-    def get_classes_list():
+def get_classes_list():
     rows = db_select("students", columns="class_name")
     classes = {r.get("class_name") for r in rows if r.get("class_name")}
     return sorted(list(classes))
