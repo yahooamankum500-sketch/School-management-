@@ -2,15 +2,22 @@ import os
 from flask import Flask, render_template, redirect, url_for, session, request
 from flask_session import Session
 from config import Config
+
+# Modules Imports
 from modules.auth import auth_bp, login_required
+from modules.students import students_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
 Session(app)
 
-# Register Auth Blueprint
+# Register Blueprints (Add naye modules yahan aage aayenge)
 app.register_blueprint(auth_bp)
+app.register_blueprint(students_bp)
 
+# ============================================================
+# DIRECT ROUTES
+# ============================================================
 @app.route("/")
 def home():
     return redirect(url_for("auth.login"))
