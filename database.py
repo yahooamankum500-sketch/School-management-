@@ -185,3 +185,36 @@ def get_classes_list():
     rows = db_select("students", columns="class_name")
     classes = {r.get("class_name") for r in rows if r.get("class_name")}
     return sorted(list(classes))
+    # ============================================================
+# PHASE 4: ATTENDANCE MANAGEMENT
+# ============================================================
+def db_upsert(table: str, values: dict, on_conflict: str):
+    return _one(_table(table).upsert(_safe(values), on_conflict=on_conflict).execute())
+
+def mark_attendance(student_id, date_str, status, admin_id):
+    return db_upsert("attendance", {
+        "student_id": student_id,
+        "attendance_date": date_str,
+        "status": status,
+        "marked_by": admin_id
+    }, on_conflict="student_id,attendance_date")
+
+def get_attendance_for_date(class_name, date_str):
+    # 1. Us class ke saare active students fetch karo
+    students = db_select("students", {"class_name": class_name, "status": "active"}, order_by="roll_no")
+    
+    # 2. Us din ki saari attendance fetch karo
+    att_rows = db_select("attendance", {"attendance_date": date_str})
+    att_map = {str(a["student_id"]): a for a in att_rows}
+    
+    # 3. Dono ko merge karo
+    result = []
+    for s in students:
+        status = att_map.get(str(s["id"]), {}).get("status", None)
+        result.append({
+            "id": s["id"],
+            "name": s["name"],
+            "roll_no": s.get("roll_no"),
+            "status": status
+        })
+    return result
