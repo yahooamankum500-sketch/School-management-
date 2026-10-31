@@ -435,3 +435,73 @@ def get_active_issues():
         i["class_name"] = student.get("class_name") if student else "-"
         
     return issues
+    # ============================================================
+# PHASE 10: TRANSPORT / BUS ROUTES
+# ============================================================
+def create_bus_route(data):
+    return db_insert("bus_routes", {
+        "route_name": data.get("route_name"),
+        "driver_name": data.get("driver_name"),
+        "driver_phone": data.get("driver_phone"),
+        "vehicle_no": data.get("vehicle_no")
+    })
+
+def get_bus_routes():
+    return db_select("bus_routes", order_by="route_name")
+
+def create_bus_stop(data):
+    return db_insert("bus_stops", {
+        "route_id": int(data.get("route_id")),
+        "stop_name": data.get("stop_name"),
+        "pickup_time": data.get("pickup_time"),
+        "sequence": int(data.get("sequence") or 1)
+    })
+
+def get_bus_stops(route_id):
+    return db_select("bus_stops", {"route_id": route_id}, order_by="sequence")
+
+def assign_transport(student_id, route_id, stop_id):
+    # Upsert logic: Agar student pehle se kisi bus mein hai, toh update kar do
+    return db_upsert("student_transport", {
+        "student_id": student_id,
+        "route_id": route_id,
+        "stop_id": stop_id
+    }, on_conflict="student_id")
+
+def get_student_transport_details(student_id):
+    # Fetch assignment
+    rows = db_select("student_transport", {"student_id": student_id})
+    if not rows:
+        return None
+        
+    assignment = rows[0]
+    
+    # Fetch Route
+    route = db_get("bus_routes", assignment["route_id"])
+    # Fetch Stop
+    stop = db_get("bus_stops", assignment["stop_id"])
+    
+    return {
+        "route_name": route.get("route_name") if route else "Unknown",
+        "driver_name": route.get("driver_name") if route else "-",
+        "driver_phone": route.get("driver_phone") if route else "-",
+        "vehicle_no": route.get("vehicle_no") if route else "-",
+        "stop_name": stop.get("stop_name") if stop else "Unknown",
+        "pickup_time": stop.get("pickup_time") if stop else "-"
+    }
+
+def get_students_on_route(route_id):
+    assignments = db_select("student_transport", {"route_id": route_id})
+    result = []
+    for a in assignments:
+        student = db_get("students", a["student_id"])
+        stop = db_get("bus_stops", a["stop_id"])
+        if student and stop:
+            result.append({
+                "student_name": student.get("name"),
+                "class_name": student.get("class_name"),
+                "parent_phone": student.get("parent_phone"),
+                "stop_name": stop.get("stop_name"),
+                "pickup_time": stop.get("pickup_time")
+            })
+    return result
