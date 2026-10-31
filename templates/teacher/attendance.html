@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Attendance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; background: #f5f6fa; margin: 0; }
+        .topbar { background: #1e293b; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .topbar a { color: #ef4444; text-decoration: none; font-weight: bold; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+        select { padding: 5px; border-radius: 5px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <strong>👨‍🏫 Teacher Portal</strong>
+        <div>
+            <a href="/teacher/dashboard" style="color:white; margin-right:15px; text-decoration:none;">Back to Dashboard</a>
+            <a href="/teacher/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Mark Attendance (Class {{ session.teacher_class }} {{ session.teacher_section }})</h2>
+            
+            <form method="GET" style="margin-bottom:20px; display:flex; gap:10px;">
+                <input type="date" name="date" value="{{ date_str }}" required style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+                <button type="submit" style="padding:8px 15px; background:#3b82f6; color:white; border:none; border-radius:5px; cursor:pointer;">Load</button>
+            </form>
+
+            {% if students %}
+            <form method="POST">
+                <table>
+                    <tr style="background:#f8fafc;">
+                        <th>Roll No</th>
+                        <th>Student Name</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for s in students %}
+                    <tr>
+                        <td>{{ s.roll_no or '-' }}</td>
+                        <td><strong>{{ s.name }}</strong></td>
+                        <td>
+                            <select name="mark_{{ s.id }}" style="background:{% if s.status == 'present' %}#d1fae5{% elif s.status == 'absent' %}#fee2e2{% else %}#fff{% endif %};">
+                                <option value="present" {% if s.status == 'present' %}selected{% endif %}>Present (P)</option>
+                                <option value="absent" {% if s.status == 'absent' %}selected{% endif %}>Absent (A)</option>
+                            </select>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <button type="submit" style="margin-top:20px; background:#10b981; color:white; padding:12px; width:100%; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Save Attendance</button>
+            </form>
+            {% else %}
+            <p>Is class mein koi student nahi mila.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
