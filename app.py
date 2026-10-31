@@ -3,7 +3,7 @@ from flask import Flask, render_template, redirect, url_for, session, request
 from flask_session import Session
 from config import Config
 
-# Supabase और Config Validation (पिछली एरर्स को रोकने के लिए)
+# Supabase और Config Validation
 from supabase_client import init_supabase
 
 # Modules Imports
@@ -21,6 +21,9 @@ Config.validate()
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# Flask-Session के लिए SESSION_TYPE सेट करना जरूरी है
+app.config['SESSION_TYPE'] = 'filesystem' # अगर आप Redis यूज़ कर रहे हैं तो 'redis' करें
 Session(app)
 
 # 2. Initialize Supabase
@@ -37,6 +40,15 @@ app.register_blueprint(parent_bp)
 app.register_blueprint(teacher_bp)
 
 # ============================================================
+# ROOT ROUTE (यह 404 एरर खत्म करेगा)
+# ============================================================
+@app.route("/")
+def index():
+    # यहाँ हम मुख्य पेज को डैशबोर्ड पर रीडायरेक्ट कर रहे हैं
+    # अगर आपका लॉगिन पेज है, तो url_for('auth.login') कर सकते हैं
+    return redirect(url_for('dashboard'))
+
+# ============================================================
 # DIRECT ROUTES
 # ============================================================
 @app.route("/dashboard")
@@ -46,13 +58,15 @@ def dashboard():
 
 @app.route("/setup-teacher")
 def setup_teacher():
-    from database import create_teacher_account
     try:
+        from database import create_teacher_account
         # ध्यान दें: यह फंक्शन database.py में होना चाहिए
         create_teacher_account("Test Teacher", "9999999999", "teacher123", "5", "A")
         return "✅ Teacher Account ban gaya!<br>Phone: 9999999999<br>Pass: teacher123<br>Class: 5A"
     except Exception as e:
-        return f"Error: {e}
+        # यहाँ Syntax Error था, जिसे ठीक कर दिया गया है
+        return f"Error: {e}"
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
