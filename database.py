@@ -344,3 +344,35 @@ def get_child_pending_fees(student_id):
     paid = sum(float(p.get("amount") or 0) for p in payments)
     
     return max(due - paid, 0)
+    # ============================================================
+# PHASE 8: TEACHER PORTAL
+# ============================================================
+def create_teacher_account(name, phone, password, assigned_class, assigned_section):
+    return db_insert("teachers", {
+        "name": name,
+        "phone": phone,
+        "password_hash": generate_password_hash(password),
+        "assigned_class": assigned_class,
+        "assigned_section": assigned_section or None
+    })
+
+def verify_teacher(phone, password):
+    rows = db_select("teachers", {"phone": phone}, limit=1)
+    if not rows:
+        return None
+    row = rows[0]
+    if check_password_hash(row.get("password_hash", ""), password):
+        return {
+            "id": row["id"], 
+            "name": row["name"], 
+            "phone": row["phone"], 
+            "assigned_class": row["assigned_class"],
+            "assigned_section": row.get("assigned_section")
+        }
+    return None
+
+def get_teacher_students(assigned_class, assigned_section):
+    filters = {"class_name": assigned_class, "status": "active"}
+    if assigned_section:
+        filters["section"] = assigned_section
+    return db_select("students", filters, order_by="roll_no")
