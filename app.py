@@ -28,15 +28,12 @@ app.register_blueprint(teacher_bp)
 # ============================================================
 # DIRECT ROUTES
 # ============================================================
-@app.route("/")
-def home():
-    return redirect(url_for("auth.login"))
-
 @app.route("/dashboard")
 @login_required
 def dashboard():
     return render_template("dashboard.html")
-    @app.route("/setup-teacher")
+
+@app.route("/setup-teacher")
 def setup_teacher():
     from database import create_teacher_account
     try:
