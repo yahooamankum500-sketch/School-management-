@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; background: #f5f6fa; margin: 0; }
+        .topbar { background: #1e293b; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .topbar a { color: #ef4444; text-decoration: none; font-weight: bold; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .btn { display: inline-block; padding: 10px 15px; background: #3b82f6; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <strong>👨‍🏫 Teacher Portal</strong>
+        <div>
+            <span style="margin-right:15px; font-size:14px;">{{ session.teacher_name }} (Class {{ session.teacher_class }})</span>
+            <a href="/teacher/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Welcome, {{ session.teacher_name }}</h2>
+            <p style="color:#666;">Aapko <strong>Class {{ session.teacher_class }} {{ session.teacher_section }}</strong> assign ki gayi hai.</p>
+            
+            <div style="margin-top:20px;">
+                <a href="/teacher/attendance" class="btn">Mark Attendance</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
