@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    
+    <!-- LEFT SIDE: FORMS -->
+    <div>
+        <!-- Notice Form -->
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3>Publish Notice</h3>
+            <form method="POST">
+                <input type="hidden" name="add_notice" value="1">
+                <input type="text" name="title" placeholder="Notice Title" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <textarea name="content" placeholder="Write notice details..." required rows="3" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;"></textarea>
+                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                    <select name="priority" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                        <option value="normal">Normal Priority</option>
+                        <option value="high">High Priority</option>
+                        <option value="urgent">Urgent</option>
+                    </select>
+                    <select name="target_class" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                        <option value="">All Classes</option>
+                        {% for c in classes %}
+                        <option value="{{ c }}">Class {{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" style="background:#3b82f6; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; width:100%;">Publish Notice</button>
+            </form>
+        </div>
+
+        <!-- Event Form -->
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Add Event</h3>
+            <form method="POST">
+                <input type="hidden" name="add_event" value="1">
+                <input type="text" name="event_title" placeholder="Event Title" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <input type="date" name="event_date" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <input type="text" name="event_venue" placeholder="Venue (Optional)" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                <textarea name="event_desc" placeholder="Event Description (Optional)" rows="2" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;"></textarea>
+                <button type="submit" style="background:#10b981; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer; width:100%;">Add Event</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: LISTS -->
+    <div>
+        <!-- Notices List -->
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3>Recent Notices</h3>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+                {% for n in notices %}
+                <div style="border-left: 4px solid {% if n.priority == 'urgent' %}#ef4444{% elif n.priority == 'high' %}#f59e0b{% else %}#3b82f6{% endif %}; padding: 10px; background:#f8fafc;">
+                    <div style="display:flex; justify-content:space-between;">
+                        <strong>{{ n.title }}</strong>
+                        <form method="POST" action="/notices/notice/delete/{{ n.id }}" onsubmit="return confirm('Delete?');">
+                            <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;">×</button>
+                        </form>
+                    </div>
+                    <small style="color:#666;">Target: {{ n.target_class or 'All' }} | {{ n.created_at[:10] }}</small>
+                    <p style="margin: 5px 0 0 0; font-size:14px;">{{ n.content }}</p>
+                </div>
+                {% else %}
+                <p style="color:#666;">Koi notice nahi hai.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Events List -->
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Upcoming Events</h3>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:15px;">
+                {% for e in events %}
+                <div style="display:flex; gap:10px; align-items:center; background:#f8fafc; padding:10px; border-radius:5px;">
+                    <div style="background:#dbeafe; color:#1e40af; padding:8px; border-radius:5px; text-align:center; min-width:50px;">
+                        <div style="font-size:12px; font-weight:bold;">{{ e.event_date[8:10] }}</div>
+                        <div style="font-size:10px;">{{ e.event_date[5:7] }}</div>
+                    </div>
+                    <div style="flex:1;">
+                        <strong>{{ e.title }}</strong>
+                        <div style="font-size:12px; color:#666;">{{ e.venue or 'School Campus' }}</div>
+                    </div>
+                    <form method="POST" action="/notices/event/delete/{{ e.id }}" onsubmit="return confirm('Delete?');">
+                        <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;">×</button>
+                    </form>
+                </div>
+                {% else %}
+                <p style="color:#666;">Koi event nahi hai.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
