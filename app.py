@@ -10,6 +10,7 @@ from modules.fees import fees_bp
 from modules.attendance import attendance_bp
 from modules.exams import exams_bp
 from modules.notices import notices_bp
+from modules.parent import parent_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 Session(app)
@@ -21,6 +22,7 @@ app.register_blueprint(fees_bp)
 app.register_blueprint(attendance_bp)
 app.register_blueprint(exams_bp)
 app.register_blueprint(notices_bp)
+app.register_blueprint(parent_bp)
 # ============================================================
 # DIRECT ROUTES
 # ============================================================
