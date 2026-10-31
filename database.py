@@ -1,4 +1,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
+from typing import Any, Optional
+import random
+from datetime import datetime
 
 # ============================================================
 # HELPER FUNCTIONS (Supabase API ke liye)
@@ -49,6 +52,21 @@ def db_insert(table: str, values: dict):
 def db_update(table: str, row_id: Any, values: dict, *, id_column: str = "id"):
     return _one(_table(table).update(_safe(values)).eq(id_column, row_id).execute())
 
+def db_delete(table: str, row_id: Any, *, id_column: str = "id"):
+    return _data(_table(table).delete().eq(id_column, row_id).execute())
+
+def db_get(table: str, row_id: Any, *, id_column: str = "id"):
+    query = _table(table).select("*").eq(id_column, row_id).limit(1)
+    return _one(query.execute())
+
+def db_upsert(table: str, values: dict, on_conflict: str):
+    return _one(_table(table).upsert(_safe(values), on_conflict=on_conflict).execute())
+
+def get_classes_list():
+    rows = db_select("students", columns="class_name")
+    classes = {r.get("class_name") for r in rows if r.get("class_name")}
+    return sorted(list(classes))
+
 
 # ============================================================
 # PHASE 1: ADMIN & AUTH
@@ -79,7 +97,9 @@ def verify_admin(username, password):
             "role": row.get("role")
         }
     return None
-    # ============================================================
+
+
+# ============================================================
 # PHASE 2: STUDENTS MANAGEMENT
 # ============================================================
 def create_student(data):
@@ -125,12 +145,11 @@ def update_student(student_id, data):
 
 def delete_student(student_id):
     return db_delete("students", student_id)
-    # ============================================================
+
+
+# ============================================================
 # PHASE 3: FEES MANAGEMENT
 # ============================================================
-import random
-from datetime import datetime
-
 def create_fee_structure(class_name, fee_type, amount, frequency):
     return db_insert("fee_structure", {
         "class_name": class_name,
@@ -147,7 +166,6 @@ def delete_fee_structure(fid):
     return db_delete("fee_structure", fid)
 
 def create_fee_payment(student_id, fee_type, amount, month, mode, note, admin_id):
-    # Auto generate receipt number
     receipt_no = f"RCPT-{datetime.now().strftime('%Y%m%d')}-{random.randint(1000, 9999)}"
     
     return db_insert("fee_payments", {
@@ -162,12 +180,8 @@ def create_fee_payment(student_id, fee_type, amount, month, mode, note, admin_id
     })
 
 def get_recent_payments(limit=50):
-    # Supabase mein direct JOIN karna thoda complex hota hai, 
-    # isliye hum simple approach lenge: payments fetch karo, phir student name fetch karo.
     payments = db_select("fee_payments", order_by="paid_at", descending=True, limit=limit)
     
-    # Fetch student names
-    from database import db_get # helper import
     for p in payments:
         student = db_get("students", p["student_id"])
         if student:
@@ -178,19 +192,11 @@ def get_recent_payments(limit=50):
             p["class_name"] = "-"
             
     return payments
-def db_get(table: str, row_id: Any, *, id_column: str = "id"):
-    query = _table(table).select("*").eq(id_column, row_id).limit(1)
-    return _one(query.execute())
-def get_classes_list():
-    rows = db_select("students", columns="class_name")
-    classes = {r.get("class_name") for r in rows if r.get("class_name")}
-    return sorted(list(classes))
-    # ============================================================
+
+
+# ============================================================
 # PHASE 4: ATTENDANCE MANAGEMENT
 # ============================================================
-def db_upsert(table: str, values: dict, on_conflict: str):
-    return _one(_table(table).upsert(_safe(values), on_conflict=on_conflict).execute())
-
 def mark_attendance(student_id, date_str, status, admin_id):
     return db_upsert("attendance", {
         "student_id": student_id,
@@ -200,14 +206,10 @@ def mark_attendance(student_id, date_str, status, admin_id):
     }, on_conflict="student_id,attendance_date")
 
 def get_attendance_for_date(class_name, date_str):
-    # 1. Us class ke saare active students fetch karo
     students = db_select("students", {"class_name": class_name, "status": "active"}, order_by="roll_no")
-    
-    # 2. Us din ki saari attendance fetch karo
     att_rows = db_select("attendance", {"attendance_date": date_str})
     att_map = {str(a["student_id"]): a for a in att_rows}
     
-    # 3. Dono ko merge karo
     result = []
     for s in students:
         status = att_map.get(str(s["id"]), {}).get("status", None)
@@ -217,4 +219,40 @@ def get_attendance_for_date(class_name, date_str):
             "roll_no": s.get("roll_no"),
             "status": status
         })
-    return result
+    return result 
+
+
+# ============================================================
+# PHASE 5: EXAMS & MARKS MANAGEMENT
+# ============================================================
+def create_exam(data):
+    return db_insert("exams", {
+        "name": data.get("name"),
+        "class_name": data.get("class_name"),
+        "exam_date": data.get("exam_date") or None,
+        "max_marks": float(data.get("max_marks") or 100)
+    })
+
+def get_exams(class_name=None):
+    filters = {"class_name": class_name} if class_name else None
+    return db_select("exams", filters, order_by="exam_date", descending=True)
+
+def get_exam(exam_id):
+    return db_get("exams", exam_id)
+
+def delete_exam(exam_id):
+    return db_delete("exams", exam_id)
+
+def save_exam_marks(exam_id, student_id, marks_obtained):
+    return db_upsert("marks", {
+        "exam_id": exam_id,
+        "student_id": student_id,
+        "marks_obtained": float(marks_obtained)
+    }, on_conflict="exam_id,student_id")
+
+def get_exam_marks(exam_id):
+    rows = db_select("marks", {"exam_id": exam_id})
+    marks_map = {}
+    for r in rows:
+        marks_map[str(r["student_id"])] = r["marks_obtained"]
+    return marks_map
