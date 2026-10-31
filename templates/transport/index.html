@@ -1,1 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:white; padding:20px; border-radius:8px;">
+    <h2>Transport Management</h2>
+    
+    <!-- Add Route Form -->
+    <form method="POST" action="/transport/add-route" style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap;">
+        <input type="text" name="route_name" placeholder="Route Name (e.g. Route 1 - North)" required style="flex:1; min-width:200px; padding:8px; border:1px solid #ccc; border-radius:5px;">
+        <input type="text" name="driver_name" placeholder="Driver Name" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+        <input type="text" name="driver_phone" placeholder="Driver Phone" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+        <input type="text" name="vehicle_no" placeholder="Vehicle No (DL-1-AB-1234)" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+        <button type="submit" style="background:#3b82f6; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer;">+ Add Route</button>
+    </form>
 
+    <!-- Routes List -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:15px;">
+        {% for r in routes %}
+        <div style="border:1px solid #eee; border-radius:8px; padding:15px;">
+            <h3 style="margin-top:0; color:#1e293b;">🚌 {{ r.route_name }}</h3>
+            <div style="font-size:14px; color:#475569; margin-bottom:15px;">
+                <div>👤 Driver: {{ r.driver_name or '-' }}</div>
+                <div>📞 Phone: {{ r.driver_phone or '-' }}</div>
+                <div>🚗 Vehicle: {{ r.vehicle_no or '-' }}</div>
+            </div>
+            <a href="/transport/route/{{ r.id }}" style="display:inline-block; background:#10b981; color:white; padding:8px 15px; text-decoration:none; border-radius:5px; font-size:14px;">Manage Stops & Students →</a>
+        </div>
+        {% else %}
+        <p style="color:#666;">Koi bus route nahi hai. Upar se add karein.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
