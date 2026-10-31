@@ -79,3 +79,49 @@ def verify_admin(username, password):
             "role": row.get("role")
         }
     return None
+    # ============================================================
+# PHASE 2: STUDENTS MANAGEMENT
+# ============================================================
+def create_student(data):
+    if not data.get("name") or not data.get("class_name"):
+        raise ValueError("Name aur Class zaroori hai")
+    return db_insert("students", {
+        "name": data.get("name"),
+        "roll_no": data.get("roll_no"),
+        "class_name": data.get("class_name"),
+        "section": data.get("section"),
+        "gender": data.get("gender"),
+        "dob": data.get("dob") or None,
+        "parent_name": data.get("parent_name"),
+        "parent_phone": data.get("parent_phone"),
+        "address": data.get("address"),
+        "status": data.get("status") or "active"
+    })
+
+def get_students(search=None, class_name=None, status="active"):
+    filters = {}
+    if status and status != "all":
+        filters["status"] = status
+    if class_name:
+        filters["class_name"] = class_name
+        
+    rows = db_select("students", filters or None, order_by="class_name")
+    
+    if search:
+        term = str(search).lower()
+        rows = [r for r in rows if any(term in str(r.get(k) or "").lower() 
+                for k in ("name", "roll_no", "parent_phone"))]
+                
+    return rows
+
+def get_student(student_id):
+    return db_get("students", student_id)
+
+def update_student(student_id, data):
+    allowed = {"name", "roll_no", "class_name", "section", "gender", "dob", 
+               "parent_name", "parent_phone", "address", "status"}
+    clean_data = {k: v for k, v in data.items() if k in allowed}
+    return db_update("students", student_id, clean_data)
+
+def delete_student(student_id):
+    return db_delete("students", student_id)
