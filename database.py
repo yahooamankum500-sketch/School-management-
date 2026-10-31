@@ -178,6 +178,9 @@ def get_recent_payments(limit=50):
             p["class_name"] = "-"
             
     return payments
+def db_get(table: str, row_id: Any, *, id_column: str = "id"):
+    query = _table(table).select("*").eq(id_column, row_id).limit(1)
+    return _one(query.execute())
 def get_classes_list():
     rows = db_select("students", columns="class_name")
     classes = {r.get("class_name") for r in rows if r.get("class_name")}
