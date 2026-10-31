@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:white; padding:20px; border-radius:8px;">
+    <h2>Mark Attendance</h2>
+    
+    <!-- Class aur Date select karne ka form -->
+    <form method="GET" style="display:flex; gap:10px; margin-bottom:20px; background:#f8fafc; padding:15px; border-radius:8px;">
+        <select name="class_name" required style="padding:8px; border:1px solid #ccc; border-radius:5px; flex:1;">
+            <option value="">Select Class</option>
+            {% for c in classes %}
+            <option value="{{ c }}" {% if c == selected_class %}selected{% endif %}>Class {{ c }}</option>
+            {% endfor %}
+        </select>
+        <input type="date" name="date" value="{{ date_str }}" required style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+        <button type="submit" style="padding:8px 15px; background:#3b82f6; color:white; border:none; border-radius:5px; cursor:pointer;">Load Students</button>
+    </form>
+
+    {% if selected_class and students %}
+    <form method="POST">
+        <!-- Hidden fields taaki save karte waqt class aur date pata rahe -->
+        <input type="hidden" name="class_name" value="{{ selected_class }}">
+        <input type="hidden" name="date" value="{{ date_str }}">
+        
+        <table style="width:100%; border-collapse:collapse;">
+            <tr style="background:#f8fafc;">
+                <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Roll No</th>
+                <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Student Name</th>
+                <th style="padding:10px; text-align:center; border-bottom:1px solid #ddd;">Status</th>
+            </tr>
+            {% for s in students %}
+            <tr>
+                <td style="padding:10px; border-bottom:1px solid #eee;">{{ s.roll_no or '-' }}</td>
+                <td style="padding:10px; border-bottom:1px solid #eee;"><strong>{{ s.name }}</strong></td>
+                <td style="padding:10px; border-bottom:1px solid #eee; text-align:center;">
+                    <!-- Dropdown set kiya hai taaki mobile par easy ho -->
+                    <select name="mark_{{ s.id }}" style="padding:5px; border-radius:5px; 
+                        background:{% if s.status == 'present' %}#d1fae5{% elif s.status == 'absent' %}#fee2e2{% else %}#fff{% endif %};">
+                        <option value="present" {% if s.status == 'present' %}selected{% endif %}>Present (P)</option>
+                        <option value="absent" {% if s.status == 'absent' %}selected{% endif %}>Absent (A)</option>
+                        <option value="late" {% if s.status == 'late' %}selected{% endif %}>Late (L)</option>
+                    </select>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <div style="margin-top:20px;">
+            <button type="submit" style="background:#10b981; color:white; padding:12px; width:100%; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:16px;">
+                Save Attendance
+            </button>
+        </div>
+    </form>
+    {% elif selected_class %}
+        <p style="text-align:center; color:#666;">Is class mein koi student nahi mila.</p>
+    {% endif %}
+</div>
+{% endblock %}
