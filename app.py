@@ -52,12 +52,7 @@ def setup_teacher():
         create_teacher_account("Test Teacher", "9999999999", "teacher123", "5", "A")
         return "✅ Teacher Account ban gaya!<br>Phone: 9999999999<br>Pass: teacher123<br>Class: 5A"
     except Exception as e:
-        return f"Error: {e}"
-
-# ============================================================
-# MAIN
-# ============================================================
+        return f"Error: {e}
 if __name__ == "__main__":
-    # Render provides the PORT via environment variable
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
