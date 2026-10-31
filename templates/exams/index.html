@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:white; padding:20px; border-radius:8px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h2>Exams Management</h2>
+        <a href="/exams/add" style="background:#3b82f6; color:white; padding:8px 15px; text-decoration:none; border-radius:5px;">+ Create Exam</a>
+    </div>
+
+    <form method="GET" style="margin-bottom:15px; display:flex; gap:10px;">
+        <select name="class_name" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+            <option value="">All Classes</option>
+            {% for c in classes %}
+            <option value="{{ c }}" {% if c == selected_class %}selected{% endif %}>Class {{ c }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" style="padding:8px 15px; background:#1e293b; color:white; border:none; border-radius:5px; cursor:pointer;">Filter</button>
+    </form>
+
+    <table style="width:100%; border-collapse:collapse;">
+        <tr style="background:#f8fafc;">
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Exam Name</th>
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Class</th>
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Max Marks</th>
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Date</th>
+            <th style="padding:10px; text-align:right; border-bottom:1px solid #ddd;">Actions</th>
+        </tr>
+        {% for e in exams %}
+        <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;"><strong>{{ e.name }}</strong></td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">{{ e.class_name }}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">{{ e.max_marks }}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">{{ e.exam_date or 'N/A' }}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee; text-align:right;">
+                <a href="/exams/{{ e.id }}/marks" style="color:#10b981; font-weight:bold; text-decoration:none; margin-right:15px;">Enter Marks →</a>
+                <form method="POST" action="/exams/{{ e.id }}/delete" style="display:inline;" onsubmit="return confirm('Delete exam and all its marks?');">
+                    <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="padding:20px; text-align:center; color:#666;">Koi exam nahi mila.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
