@@ -56,7 +56,7 @@
                             <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;">×</button>
                         </form>
                     </div>
-                    <small style="color:#666;">Target: {{ n.target_class or 'All' }} | {{ n.created_at[:10] }}</small>
+                    <small style="color:#666;">Target: {{ n.target_class or 'All' }} | {{ n.created_at.strftime('%Y-%m-%d') }}</small>
                     <p style="margin: 5px 0 0 0; font-size:14px;">{{ n.content }}</p>
                 </div>
                 {% else %}
@@ -72,8 +72,8 @@
                 {% for e in events %}
                 <div style="display:flex; gap:10px; align-items:center; background:#f8fafc; padding:10px; border-radius:5px;">
                     <div style="background:#dbeafe; color:#1e40af; padding:8px; border-radius:5px; text-align:center; min-width:50px;">
-                        <div style="font-size:12px; font-weight:bold;">{{ e.event_date[8:10] }}</div>
-                        <div style="font-size:10px;">{{ e.event_date[5:7] }}</div>
+                        <div style="font-size:12px; font-weight:bold;">{{ e.event_date.strftime('%d') }}</div>
+                        <div style="font-size:10px;">{{ e.event_date.strftime('%b') }}</div>
                     </div>
                     <div style="flex:1;">
                         <strong>{{ e.title }}</strong>
