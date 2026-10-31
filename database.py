@@ -256,3 +256,33 @@ def get_exam_marks(exam_id):
     for r in rows:
         marks_map[str(r["student_id"])] = r["marks_obtained"]
     return marks_map
+    # ============================================================
+# PHASE 6: NOTICES & EVENTS
+# ============================================================
+def create_notice(data):
+    return db_insert("notices", {
+        "title": data.get("title"),
+        "content": data.get("content"),
+        "priority": data.get("priority") or "normal",
+        "target_class": data.get("target_class") or None
+    })
+
+def get_notices(limit=50):
+    return db_select("notices", order_by="created_at", descending=True, limit=limit)
+
+def delete_notice(notice_id):
+    return db_delete("notices", notice_id)
+
+def create_event(data):
+    return db_insert("events", {
+        "title": data.get("title"),
+        "description": data.get("description"),
+        "event_date": data.get("event_date"),
+        "venue": data.get("venue")
+    })
+
+def get_events(limit=50):
+    return db_select("events", order_by="event_date", limit=limit)
+
+def delete_event(event_id):
+    return db_delete("events", event_id)
