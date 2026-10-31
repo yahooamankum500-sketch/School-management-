@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parent Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; background: #f5f6fa; margin: 0; }
+        .topbar { background: #1e293b; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .topbar a { color: #ef4444; text-decoration: none; font-weight: bold; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+        .card { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .stat-box { text-align: center; padding: 15px; border-radius: 8px; }
+        .flash { padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+        .flash.error { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <strong>👨‍👩‍👧 Parent Portal</strong>
+        <div>
+            <span style="margin-right:15px; font-size:14px;">{{ session.parent_name }}</span>
+            <a href="/parent/logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for cat, msg in messages %}
+                <div class="flash {{ cat }}">{{ msg }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <h2 style="color:#1e293b;">My Children</h2>
+        
+        {% for child in children %}
+        <div class="card">
+            <h3 style="margin-top:0; color:#3b82f6;">{{ child.name }} (Class {{ child.class_name }})</h3>
+            
+            <div class="grid" style="margin-top:15px;">
+                <!-- Attendance -->
+                <div class="stat-box" style="background: #d1fae5;">
+                    <div style="font-size:12px; color:#065f46;">Attendance (This Month)</div>
+                    <div style="font-size:24px; font-weight:bold; color:#065f46;">{{ child.attendance.percent }}%</div>
+                    <div style="font-size:11px; color:#065f46;">{{ child.attendance.present }}/{{ child.attendance.total }} Days</div>
+                </div>
+                
+                <!-- Fees -->
+                <div class="stat-box" style="background: #fee2e2;">
+                    <div style="font-size:12px; color:#991b1b;">Pending Fees</div>
+                    <div style="font-size:24px; font-weight:bold; color:#991b1b;">₹{{ "%.0f"|format(child.pending_fees) }}</div>
+                    <div style="font-size:11px; color:#991b1b;">This month</div>
+                </div>
+
+                <!-- Marks -->
+                <div class="stat-box" style="background: #dbeafe;">
+                    <div style="font-size:12px; color:#1e40af;">Recent Marks</div>
+                    {% if child.recent_marks %}
+                        <div style="font-size:24px; font-weight:bold; color:#1e40af;">{{ child.recent_marks.marks }}</div>
+                        <div style="font-size:11px; color:#1e40af;">{{ child.recent_marks.exam }}</div>
+                    {% else %}
+                        <div style="font-size:14px; color:#1e40af; margin-top:8px;">No marks yet</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card" style="text-align:center; color:#666;">
+            Aapke phone number se koi student record nahi mila.
+        </div>
+        {% endfor %}
+
+        <!-- Notice Board -->
+        <h3 style="color:#1e293b;">Recent Notices</h3>
+        {% for n in notices %}
+        <div class="card" style="padding: 15px; border-left: 4px solid #3b82f6;">
+            <strong>{{ n.title }}</strong>
+            <p style="font-size:13px; color:#666; margin-bottom:0;">{{ n.content }}</p>
+        </div>
+        {% else %}
+        <p style="color:#666;">Koi notice nahi hai.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
