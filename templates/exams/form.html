@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:white; padding:20px; border-radius:8px; max-width:500px; margin:auto;">
+    <h2>Create New Exam</h2>
+    <form method="POST">
+        <div style="margin-bottom:15px;">
+            <label>Exam Name *</label>
+            <input type="text" name="name" required placeholder="e.g. Mid Term" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+        </div>
+        
+        <div style="margin-bottom:15px;">
+            <label>Class *</label>
+            <select name="class_name" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+                <option value="">Select Class</option>
+                {% for c in classes %}
+                <option value="{{ c }}">Class {{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div style="margin-bottom:15px;">
+            <label>Exam Date</label>
+            <input type="date" name="exam_date" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label>Max Marks *</label>
+            <input type="number" name="max_marks" required placeholder="e.g. 100" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+        </div>
+        
+        <button type="submit" style="background:#3b82f6; color:white; padding:12px; width:100%; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">Create Exam</button>
+        <div style="text-align:center; margin-top:10px;">
+            <a href="/exams/" style="color:#666; text-decoration:none;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
