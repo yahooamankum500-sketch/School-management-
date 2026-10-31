@@ -286,3 +286,61 @@ def get_events(limit=50):
 
 def delete_event(event_id):
     return db_delete("events", event_id)
+    # ============================================================
+# PHASE 7: PARENT PORTAL
+# ============================================================
+def create_parent_account(phone, password, name):
+    return db_insert("parents", {
+        "phone": phone,
+        "password_hash": generate_password_hash(password),
+        "name": name
+    })
+
+def verify_parent(phone, password):
+    rows = db_select("parents", {"phone": phone}, limit=1)
+    if not rows:
+        return None
+    row = rows[0]
+    if check_password_hash(row.get("password_hash", ""), password):
+        return {"id": row["id"], "phone": row["phone"], "name": row.get("name")}
+    return None
+
+def get_children_for_parent(phone):
+    # Students table se us phone number wale bachche fetch karo
+    return db_select("students", {"parent_phone": phone, "status": "active"})
+
+def get_child_attendance_summary(student_id):
+    from datetime import datetime
+    current_month = datetime.now().strftime("%Y-%m")
+    
+    # Is student ki saari attendance fetch karo
+    rows = db_select("attendance", {"student_id": student_id})
+    
+    present = 0
+    total = 0
+    for r in rows:
+        # Filter for current month
+        if r.get("attendance_date") and r["attendance_date"].startswith(current_month):
+            total += 1
+            if r["status"] == "present":
+                present += 1
+                
+    percent = round((present / total * 100), 1) if total > 0 else 0
+    return {"present": present, "total": total, "percent": percent}
+
+def get_child_pending_fees(student_id):
+    student = db_get("students", student_id)
+    if not student or not student.get("class_name"):
+        return 0
+        
+    # Class ki total fees
+    structures = db_select("fee_structure", {"class_name": student["class_name"]})
+    due = sum(float(s.get("amount") or 0) for s in structures)
+    
+    # Student ne kitna pay kiya
+    from datetime import datetime
+    current_month = datetime.now().strftime("%Y-%m")
+    payments = db_select("fee_payments", {"student_id": student_id, "month": current_month})
+    paid = sum(float(p.get("amount") or 0) for p in payments)
+    
+    return max(due - paid, 0)
