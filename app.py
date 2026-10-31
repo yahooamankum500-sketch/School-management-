@@ -7,6 +7,7 @@ from config import Config
 from modules.auth import auth_bp, login_required
 from modules.students import students_bp
 from modules.fees import fees_bp
+from modules.attendance import attendance_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 Session(app)
@@ -15,6 +16,7 @@ Session(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(students_bp)
 app.register_blueprint(fees_bp)
+app.register_blueprint(attendance_bp)
 # ============================================================
 # DIRECT ROUTES
 # ============================================================
