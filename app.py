@@ -27,6 +27,7 @@ from modules.visitors import visitors_bp
 from modules.backup import backup_bp
 from modules.settings import settings_bp
 from modules.medical import medical_bp
+from modules.audit import audit_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 Session(app)
@@ -57,6 +58,7 @@ app.register_blueprint(visitors_bp)
 app.register_blueprint(backup_bp)
 app.register_blueprint(settings_bp)
 app.register_blueprint(medical_bp)
+app.register_blueprint(audit_bp)
 
 @app.route("/")
 def home():
