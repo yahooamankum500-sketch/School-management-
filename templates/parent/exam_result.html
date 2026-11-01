@@ -1,0 +1,28 @@
+{% extends "parent/base.html" %}
+{% block title %}Exam Result{% endblock %}
+{% block content %}
+
+<div style="background:white; padding:30px; border-radius:10px; text-align:center; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+    <h2 style="color:#1e293b; margin:0 0 10px 0;">{{ exam.title }} Result</h2>
+    <div style="font-size:50px; font-weight:bold; color:#3b82f6; margin:20px 0;">
+        {{ attempt.score }} <span style="font-size:24px; color:#94a3b8;">/ {{ exam.total_marks }}</span>
+    </div>
+    <div style="font-size:16px; color:#475569;">
+        Percentage: <strong>{{ ((attempt.score / exam.total_marks) * 100)|round(1) }}%</strong>
+    </div>
+    <a href="/parent/online-exams?child_id={{ attempt.student_id }}" style="display:inline-block; margin-top:20px; background:#f1f5f9; color:#475569; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">← Back to Exams</a>
+</div>
+
+<h3 style="color:#1e293b; margin-bottom:15px;">Answer Review</h3>
+{% for a in answers %}
+<div style="background:white; padding:15px; border-radius:8px; margin-bottom:10px; border-left:5px solid {% if a.is_correct %}#10b981{% else %}#ef4444{% endif %};">
+    <div style="font-size:14px; font-weight:bold; color:#1e293b; margin-bottom:8px;">{{ a.question_text }}</div>
+    <div style="font-size:13px; color:#475569;">
+        Aapka Answer: <strong style="color:{% if a.is_correct %}#10b981{% else %}#ef4444{% endif %};">{{ a.selected or 'Not Attempted' }}</strong>
+        {% if not a.is_correct %}
+        <br>Sahi Answer: <strong style="color:#10b981;">{{ a.correct_option }}</strong>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
