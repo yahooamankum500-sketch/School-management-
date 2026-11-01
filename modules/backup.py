@@ -1,6 +1,6 @@
 from flask import Blueprint, Response
 from modules.auth import login_required
-from database import get_full_backup
+from database import get_backup_data
 
 backup_bp = Blueprint("backup", __name__, url_prefix="/backup")
 
