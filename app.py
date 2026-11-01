@@ -17,6 +17,7 @@ from modules.staff import staff_bp
 from modules.expenses import expenses_bp
 from modules.id_cards import id_cards_bp
 from modules.timetable import timetable_bp
+from modules.discounts import discounts_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -38,6 +39,7 @@ app.register_blueprint(staff_bp)
 app.register_blueprint(expenses_bp)
 app.register_blueprint(id_cards_bp)
 app.register_blueprint(timetable_bp)
+app.register_blueprint(discounts_bp)
 
 @app.route("/")
 def home():
