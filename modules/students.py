@@ -31,23 +31,34 @@ def add():
         
         flash(f"Student add ho gaya (ID: {sid})", "success")
         return redirect(url_for("students.index"))
+    @login_required
+def add():
+    if request.method == "POST":
+        data = request.form.to_dict()
         
-    # Ye line POST block ke BAHAR hogi, taaki GET request par form dikhe
+        # Validation
+        if not data.get("name") or not data.get("class_name"):
+            flash("Name aur Class zaroori hai", "error")
+            return redirect(url_for("students.add"))
+            
+        # Data save karna
+        sid = create_student(data)
+        
+        # Log activity
+        log_activity(
+            session.get("admin_id"),
+            session.get("admin_name", "Admin"),
+            "Added Student",
+            "Student",
+            f"Name: {data.get('name')}"
+        )
+        
+        # Success message aur redirect
+        flash(f"Student add ho gaya (ID: {sid})", "success")
+        return redirect(url_for("students.index"))
+        
+    # GET Request ke liye form dikhana (Yeh IF block ke bahar hai)
     return render_template("students/form.html", student=None)
-
-# Log activity
-log_activity(
-    session.get("admin_id"), 
-    session.get("admin_name", "Admin"), 
-    "Added Student", 
-    "Student", 
-    f"Name: {data.get('name')}"
-)
-
-flash(f"Student add ho gaya (ID: {sid})", "success")
-return redirect(url_for("students.index"))
-    return render_template("students/form.html", student=None)
-
 @students_bp.route("/<int:student_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(student_id):
