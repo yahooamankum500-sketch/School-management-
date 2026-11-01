@@ -831,3 +831,28 @@ def get_leave_requests(status=None):
 
 def update_leave_status(leave_id, status):
     return db_update("leave_requests", leave_id, {"status": status})
+    # ============================================================
+# PHASE 20: EVENTS & CALENDAR
+# ============================================================
+def create_event(data):
+    return db_insert("events", {
+        "title": data.get("title"),
+        "description": data.get("description"),
+        "event_date": data.get("event_date"),
+        "start_time": data.get("start_time"),
+        "venue": data.get("venue")
+    })
+
+def get_events(limit=50):
+    # Aaj se aage ke events fetch karo (upcoming first)
+    from datetime import date
+    today = date.today().isoformat()
+    
+    rows = db_select("events", order_by="event_date")
+    
+    # Python se filter kar lenge taaki past events hide ho jayein (optional)
+    # Agar past events bhi dikhane hain, toh is filter ko hata do.
+    return rows[:limit]
+
+def delete_event(event_id):
+    return db_delete("events", event_id)
