@@ -1,7 +1,55 @@
 {% extends "base.html" %}
 {% block content %}
-<div style="background:white; padding:20px; border-radius:8px;">
-    <h2>Dashboard</h2>
-    <p>School Management System mein aapka swagat hai!</p>
+<div style="margin-bottom: 20px;">
+    <h2 style="color: #1e293b; margin: 0;">Dashboard Overview</h2>
+    <p style="color: #64748b; font-size: 14px;">Aaj ka aur is month ka quick summary.</p>
+</div>
+
+<!-- Stats Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
+    
+    <!-- Students Card -->
+    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #3b82f6; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">🎓 Total Students</div>
+        <div style="font-size: 28px; font-weight: bold; color: #1e293b;">{{ stats.total_students }}</div>
+    </div>
+
+    <!-- Fees Card -->
+    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #10b981; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">💰 Fees Collected ({{ stats.current_month }})</div>
+        <div style="font-size: 28px; font-weight: bold; color: #10b981;">₹{{ "%.0f"|format(stats.total_fees) }}</div>
+    </div>
+
+    <!-- Expenses Card -->
+    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #ef4444; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">📉 Expenses ({{ stats.current_month }})</div>
+        <div style="font-size: 28px; font-weight: bold; color: #ef4444;">₹{{ "%.0f"|format(stats.total_expenses) }}</div>
+    </div>
+
+    <!-- Attendance Card -->
+    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #f59e0b; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">📅 Aaj ki Attendance</div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <div style="font-size: 12px; color: #10b981; font-weight: bold;">Present</div>
+                <div style="font-size: 24px; font-weight: bold; color: #10b981;">{{ stats.today_present }}</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; color: #ef4444; font-weight: bold;">Absent</div>
+                <div style="font-size: 24px; font-weight: bold; color: #ef4444;">{{ stats.today_absent }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions Area -->
+<div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <h3 style="margin-top: 0; color: #1e293b; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">⚡ Quick Actions</h3>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+        <a href="/students/add" style="text-decoration: none; background: #eff6ff; color: #1e40af; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">+ Add Student</a>
+        <a href="/fees/collect" style="text-decoration: none; background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">+ Collect Fee</a>
+        <a href="/attendance/" style="text-decoration: none; background: #fef3c7; color: #92400e; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">Mark Attendance</a>
+        <a href="/notices/" style="text-decoration: none; background: #fee2e2; color: #991b1b; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">+ Publish Notice</a>
+    </div>
 </div>
 {% endblock %}
