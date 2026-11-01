@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:20px;">
+    <a href="/medical/" style="color:#666; text-decoration:none;">← Back to Students</a>
+    <h2 style="margin-top:10px;">Medical Record: {{ student.name }}</h2>
+    <p style="color:#666;">Class: {{ student.class_name }} | Roll: {{ student.roll_no or '-' }}</p>
+</div>
+
+<div style="background:white; padding:20px; border-radius:8px; max-width:700px;">
+    <form method="POST">
+        <h3 style="margin-top:0; color:#1e293b; font-size:16px; border-bottom:1px solid #eee; padding-bottom:10px;">🩺 Health Details</h3>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px; margin-bottom:15px;">
+            <div>
+                <label>Blood Group</label>
+                <select name="blood_group" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="">Select</option>
+                    {% for bg in ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] %}
+                    <option value="{{ bg }}" {% if record and record.blood_group == bg %}selected{% endif %}>{{ bg }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label>Allergies (if any)</label>
+                <input type="text" name="allergies" value="{{ record.allergies if record else '' }}" placeholder="e.g. Peanuts, Dust" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+            </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label>Chronic Medical Conditions</label>
+            <textarea name="medical_conditions" rows="2" placeholder="e.g. Asthma, Diabetes" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">{{ record.medical_conditions if record else '' }}</textarea>
+        </div>
+
+        <h3 style="margin-top:20px; color:#1e293b; font-size:16px; border-bottom:1px solid #eee; padding-bottom:10px;">🚨 Emergency & Doctor Details</h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px; margin-bottom:15px;">
+            <div>
+                <label>Emergency Contact Name</label>
+                <input type="text" name="emergency_contact_name" value="{{ record.emergency_contact_name if record else '' }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+            </div>
+            <div>
+                <label>Emergency Contact Phone</label>
+                <input type="text" name="emergency_contact_phone" value="{{ record.emergency_contact_phone if record else '' }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+            </div>
+            <div>
+                <label>Family Doctor Name</label>
+                <input type="text" name="doctor_name" value="{{ record.doctor_name if record else '' }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+            </div>
+            <div>
+                <label>Doctor Phone</label>
+                <input type="text" name="doctor_phone" value="{{ record.doctor_phone if record else '' }}" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+            </div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label>Additional Notes</label>
+            <textarea name="notes" rows="2" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">{{ record.notes if record else '' }}</textarea>
+        </div>
+
+        <button type="submit" style="background:#10b981; color:white; padding:12px 20px; border:none; border-radius:5px; cursor:pointer; font-weight:bold; width:100%;">
+            Save Medical Record
+        </button>
+    </form>
+</div>
+{% endblock %}
