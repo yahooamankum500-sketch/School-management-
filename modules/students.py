@@ -1,7 +1,6 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from modules.auth import login_required
 from database import create_student, get_students, get_student, update_student, delete_student, log_activity
-from flask import session
 
 students_bp = Blueprint("students", __name__, url_prefix="/students")
 
@@ -26,25 +25,7 @@ def add():
         # Student create karna
         sid = create_student(data)
         
-        # Activity log (agar aapke paas hai toh)
-        # log_activity(...)
-        
-        flash(f"Student add ho gaya (ID: {sid})", "success")
-        return redirect(url_for("students.index"))
-    @login_required
-def add():
-    if request.method == "POST":
-        data = request.form.to_dict()
-        
-        # Validation
-        if not data.get("name") or not data.get("class_name"):
-            flash("Name aur Class zaroori hai", "error")
-            return redirect(url_for("students.add"))
-            
-        # Data save karna
-        sid = create_student(data)
-        
-        # Log activity
+        # Activity log
         log_activity(
             session.get("admin_id"),
             session.get("admin_name", "Admin"),
@@ -59,6 +40,7 @@ def add():
         
     # GET Request ke liye form dikhana (Yeh IF block ke bahar hai)
     return render_template("students/form.html", student=None)
+
 @students_bp.route("/<int:student_id>/edit", methods=["GET", "POST"])
 @login_required
 def edit(student_id):
