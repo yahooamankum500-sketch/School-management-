@@ -1,1 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end;">
+    <div>
+        <a href="/expenses/?month={{ p.month }}" style="color:#666; text-decoration:none;">← Back to Expenses</a>
+        <h2 style="margin-top:10px;">Profit & Loss Statement</h2>
+    </div>
+    <form method="GET" style="display:flex; gap:10px;">
+        <input type="month" name="month" value="{{ p.month }}" required style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+        <button type="submit" style="background:#1e293b; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer;">View</button>
+    </form>
+</div>
 
+<div style="background:white; padding:30px; border-radius:8px; max-width:600px; margin:auto;">
+    <div style="text-align:center; margin-bottom:30px;">
+        <h3 style="color:#1e293b; margin:0;">Month: {{ p.month }}</h3>
+    </div>
+
+    <!-- Income Section -->
+    <div style="margin-bottom:20px;">
+        <h4 style="border-bottom:1px solid #eee; padding-bottom:5px; color:#10b981;">Income</h4>
+        <div style="display:flex; justify-content:space-between; padding:8px 0;">
+            <span>Fees Collected</span>
+            <strong>₹{{ "%.0f"|format(p.fees) }}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding:8px 0; background:#f8fafc; font-weight:bold;">
+            <span>Total Income (A)</span>
+            <span style="color:#10b981;">₹{{ "%.0f"|format(p.fees) }}</span>
+        </div>
+    </div>
+
+    <!-- Expenses Section -->
+    <div style="margin-bottom:20px;">
+        <h4 style="border-bottom:1px solid #eee; padding-bottom:5px; color:#ef4444;">Expenses</h4>
+        <div style="display:flex; justify-content:space-between; padding:8px 0;">
+            <span>Staff Salaries (Paid)</span>
+            <strong>₹{{ "%.0f"|format(p.salary) }}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding:8px 0;">
+            <span>Other Expenses (Rent, etc.)</span>
+            <strong>₹{{ "%.0f"|format(p.expenses) }}</strong>
+        </div>
+        <div style="display:flex; justify-content:space-between; padding:8px 0; background:#f8fafc; font-weight:bold;">
+            <span>Total Expenses (B)</span>
+            <span style="color:#ef4444;">₹{{ "%.0f"|format(p.total_outflow) }}</span>
+        </div>
+    </div>
+
+    <!-- Net Result -->
+    <div style="border-top:2px solid #1e293b; padding-top:15px; margin-top:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="margin:0;">Net {{ 'Profit' if p.is_profit else 'Loss' }} (A - B)</h3>
+            <h2 style="margin:0; color:{% if p.is_profit %}#10b981{% else %}#ef4444{% endif %};">
+                ₹{{ "%.0f"|format(p.net|abs) }}
+            </h2>
+        </div>
+    </div>
+</div>
+{% endblock %}
