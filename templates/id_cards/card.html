@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ID Card - {{ student.name }}</title>
+    <style>
+        body { background: #e2e8f0; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; }
+        /* Standard ID Card Size (approx 3.375 x 2.125 inches) */
+        .id-card {
+            width: 340px; height: 215px; background: white; border-radius: 10px; overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative; display: flex; flex-direction: column;
+        }
+        .header {
+            background: #1e293b; color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center;
+        }
+        .header h3 { margin: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+        .header p { margin: 0; font-size: 9px; opacity: 0.8; }
+        .body-content { display: flex; padding: 15px; gap: 15px; flex: 1; }
+        .photo {
+            width: 70px; height: 90px; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 5px;
+            display: flex; justify-content: center; align-items: center; font-size: 24px; color: #94a3b8;
+        }
+        .details { flex: 1; }
+        .details h2 { margin: 0 0 5px 0; font-size: 16px; color: #0f172a; }
+        .details .info-row { font-size: 11px; color: #334155; margin-bottom: 4px; display: flex; }
+        .details .info-row span { width: 50px; color: #64748b; font-weight: bold; }
+        .footer { background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 8px 15px; display: flex; justify-content: space-between; align-items: center; }
+        .footer p { margin: 0; font-size: 9px; color: #64748b; }
+        .barcode { font-family: monospace; font-size: 10px; letter-spacing: 2px; }
+        
+        .actions { position: fixed; bottom: 20px; text-align: center; width: 100%; }
+        .actions button { padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        
+        @media print {
+            body { background: white; height: auto; display: block; }
+            .id-card { box-shadow: none; border: 1px solid #ccc; margin: 0; }
+            .actions { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="id-card">
+        <div class="header">
+            <div>
+                <h3>School ERP</h3>
+                <p>Student Identity Card</p>
+            </div>
+            <div style="font-size: 20px;">🎓</div>
+        </div>
+        
+        <div class="body-content">
+            <div class="photo">
+                <!-- Agar photo_url hai toh img tag lagao, nahi toh icon -->
+                {% if student.photo_url %}
+                    <img src="{{ student.photo_url }}" style="width:100%; height:100%; object-fit:cover; border-radius:5px;">
+                {% else %}
+                    👤
+                {% endif %}
+            </div>
+            <div class="details">
+                <h2>{{ student.name }}</h2>
+                <div class="info-row"><span>Class:</span> {{ student.class_name }} {{ student.section or '' }}</div>
+                <div class="info-row"><span>Roll No:</span> {{ student.roll_no or 'N/A' }}</div>
+                <div class="info-row"><span>DOB:</span> {{ student.dob or 'N/A' }}</div>
+                <div class="info-row"><span>Phone:</span> {{ student.parent_phone or 'N/A' }}</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Valid for Session 2024-25</p>
+            <div class="barcode">|| ||| | ||| || ||</div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button onclick="window.print()">🖨️ Print ID Card</button>
+    </div>
+</body>
+</html>
