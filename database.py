@@ -721,3 +721,20 @@ def get_dashboard_stats():
         "today_absent": absent_count,
         "current_month": current_month
     }
+# ============================================================
+# PHASE 17: TIMETABLE MANAGEMENT
+# ============================================================
+def create_timetable_entry(data):
+    return db_insert("timetable", {
+        "class_name": data.get("class_name"),
+        "day_of_week": data.get("day_of_week"),
+        "period_number": int(data.get("period_number")),
+        "subject": data.get("subject"),
+        "teacher_name": data.get("teacher_name")
+    })
+
+def get_timetable(class_name):
+    return db_select("timetable", {"class_name": class_name}, order_by="period_number")
+
+def delete_timetable_entry(entry_id):
+    return db_delete("timetable", entry_id)
