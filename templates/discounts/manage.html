@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:20px;">
+    <a href="/discounts/" style="color:#666; text-decoration:none;">← Back to Students</a>
+    <h2 style="margin-top:10px;">Discount for: {{ student.name }} (Class {{ student.class_name }})</h2>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <!-- LEFT: Fee Breakdown -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px; border-left:5px solid #3b82f6; margin-bottom:20px;">
+            <h3>Fee Summary</h3>
+            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
+                <span>Base Fee (Class {{ student.class_name }})</span>
+                <strong>₹{{ "%.0f"|format(fee.base_fee) }}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
+                <span>Total Discount Applied</span>
+                <strong style="color:#ef4444;">- ₹{{ "%.0f"|format(fee.discount) }}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:15px 0; font-size:18px;">
+                <span style="font-weight:bold;">Final Payable Fee</span>
+                <strong style="color:#10b981;">₹{{ "%.0f"|format(fee.final_fee) }}</strong>
+            </div>
+        </div>
+
+        <!-- Applied Discounts -->
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Active Discounts</h3>
+            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                <tr style="background:#f8fafc;">
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">Name</th>
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">Value</th>
+                    <th style="padding:8px; text-align:right; border-bottom:1px solid #ddd;">Action</th>
+                </tr>
+                {% for d in discounts %}
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #eee;"><strong>{{ d.discount_name }}</strong></td>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">
+                        {% if d.discount_type == 'percent' %}{{ d.discount_value }}%{% else %}₹{{ d.discount_value }}{% endif %}
+                    </td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">
+                        <form method="POST" action="/discounts/delete/{{ d.id }}">
+                            <input type="hidden" name="student_id" value="{{ student.id }}">
+                            <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="3" style="padding:15px; text-align:center; color:#666;">Koi discount apply nahi hai.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <!-- RIGHT: Add Discount Form -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Apply New Discount</h3>
+            <form method="POST" style="margin-top:15px;">
+                <div style="margin-bottom:15px;">
+                    <label>Discount Name *</label>
+                    <input type="text" name="discount_name" required placeholder="e.g. Sibling Discount" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                </div>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                    <div>
+                        <label>Type</label>
+                        <select name="discount_type" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                            <option value="fixed">Fixed (₹)</option>
+                            <option value="percent">Percent (%)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Value *</label>
+                        <input type="number" step="0.01" name="discount_value" required placeholder="e.g. 500 or 10" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                    </div>
+                </div>
+
+                <button type="submit" style="background:#10b981; color:white; padding:10px 15px; border:none; border-radius:5px; cursor:pointer; width:100%; font-weight:bold;">
+                    Apply Discount
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
