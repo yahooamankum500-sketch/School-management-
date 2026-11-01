@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:20px;">
+    <a href="/staff-attendance/" style="color:#666; text-decoration:none;">← Back to Attendance</a>
+    <h2 style="margin-top:10px;">Leave Requests</h2>
+</div>
+
+<div style="background:white; padding:20px; border-radius:8px;">
+    <table style="width:100%; border-collapse:collapse;">
+        <tr style="background:#f8fafc;">
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Staff Name</th>
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Dates</th>
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Reason</th>
+            <th style="padding:10px; text-align:center; border-bottom:1px solid #ddd;">Status</th>
+            <th style="padding:10px; text-align:right; border-bottom:1px solid #ddd;">Action</th>
+        </tr>
+        {% for r in requests %}
+        <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;"><strong>{{ r.staff_name }}</strong></td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">{{ r.from_date }} to {{ r.to_date }}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee; font-size:13px; color:#666;">{{ r.reason or '-' }}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee; text-align:center;">
+                <span style="padding:4px 8px; border-radius:4px; font-size:12px; font-weight:bold; 
+                    background:{% if r.status == 'approved' %}#d1fae5{% elif r.status == 'rejected' %}#fee2e2{% else %}#fef3c7{% endif %};
+                    color:{% if r.status == 'approved' %}#065f46{% elif r.status == 'rejected' %}#991b1b{% else %}#92400e{% endif %};">
+                    {{ r.status|upper }}
+                </span>
+            </td>
+            <td style="padding:10px; border-bottom:1px solid #eee; text-align:right;">
+                {% if r.status == 'pending' %}
+                <form method="POST" action="/staff-attendance/leaves/{{ r.id }}/approved" style="display:inline;">
+                    <button type="submit" style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">Approve</button>
+                </form>
+                <form method="POST" action="/staff-attendance/leaves/{{ r.id }}/rejected" style="display:inline; margin-left:5px;">
+                    <button type="submit" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">Reject</button>
+                </form>
+                {% else %}
+                <span style="color:#999; font-size:12px;">Done</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="padding:20px; text-align:center; color:#666;">Koi leave request nahi hai.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
