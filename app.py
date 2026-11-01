@@ -62,5 +62,16 @@ from database import get_dashboard_stats
 def dashboard():
     stats = get_dashboard_stats()
     return render_template("dashboard.html", stats=stats)
+    from flask import send_from_directory
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('static', 'manifest.json')
+
+@app.route('/sw.js')
+def service_worker():
+    resp = send_from_directory('static', 'sw.js')
+    resp.headers['Service-Worker-Allowed'] = '/'
+    return resp
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
