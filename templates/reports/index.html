@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:white; padding:20px; border-radius:8px;">
+    <h2>Reports & Data Export</h2>
+    <p style="color:#666; font-size:14px;">Select a report to view or download as Excel (CSV).</p>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px;">
+        <a href="/reports/defaulters" style="text-decoration:none; color:inherit;">
+            <div style="border:1px solid #eee; border-radius:8px; padding:20px; text-align:center; hover:box-shadow:0 4px 10px rgba(0,0,0,0.05);">
+                <div style="font-size:40px; margin-bottom:10px;">📉</div>
+                <h3 style="margin:0; color:#ef4444;">Fee Defaulters</h3>
+                <p style="color:#666; font-size:13px; margin-top:5px;">Students with pending fees</p>
+            </div>
+        </a>
+        
+        <a href="/reports/fees" style="text-decoration:none; color:inherit;">
+            <div style="border:1px solid #eee; border-radius:8px; padding:20px; text-align:center;">
+                <div style="font-size:40px; margin-bottom:10px;">💰</div>
+                <h3 style="margin:0; color:#10b981;">Fee Collection</h3>
+                <p style="color:#666; font-size:13px; margin-top:5px;">List of collected fees</p>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}
