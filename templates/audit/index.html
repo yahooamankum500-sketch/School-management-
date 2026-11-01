@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:white; padding:20px; border-radius:8px;">
+    <h2>Activity Logs (Audit Trail)</h2>
+    <p style="color:#666; font-size:14px; margin-bottom:20px;">System mein hone wali saari activities ka record.</p>
+
+    <table style="width:100%; border-collapse:collapse; font-size:14px;">
+        <tr style="background:#f8fafc;">
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Date & Time</th>
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Admin</th>
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Action</th>
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Details</th>
+        </tr>
+        {% for log in logs %}
+        <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee; color:#666;">
+                {{ log.created_at[:16]|replace('T', ' ') }}
+            </td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">
+                <strong>{{ log.admin_name }}</strong>
+            </td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">
+                <span style="padding:3px 8px; border-radius:4px; font-size:12px; font-weight:bold;
+                    background:{% if 'Added' in log.action %}#d1fae5{% elif 'Deleted' in log.action %}#fee2e2{% else %}#dbeafe{% endif %};
+                    color:{% if 'Added' in log.action %}#065f46{% elif 'Deleted' in log.action %}#991b1b{% else %}#1e40af{% endif %};">
+                    {{ log.action }}
+                </span>
+            </td>
+            <td style="padding:10px; border-bottom:1px solid #eee; color:#475569;">
+                {{ log.details }}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4" style="padding:20px; text-align:center; color:#666;">Abhi tak koi activity record nahi hui hai.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
