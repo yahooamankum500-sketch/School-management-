@@ -1139,3 +1139,31 @@ def log_activity(admin_id, admin_name, action, entity, details=""):
 
 def get_audit_logs(limit=100):
     return db_select("audit_logs", order_by="created_at", descending=True, limit=limit)
+    # ============================================================
+# PHASE 32: HOMEWORK MANAGEMENT
+# ============================================================
+def create_homework(data):
+    return db_insert("homework", {
+        "class_name": data.get("class_name"),
+        "section": data.get("section") or None,
+        "subject": data.get("subject"),
+        "title": data.get("title"),
+        "description": data.get("description"),
+        "due_date": data.get("due_date") or None
+    })
+
+def get_homework(class_name=None):
+    filters = {"class_name": class_name} if class_name else None
+    return db_select("homework", filters, order_by="due_date", descending=True)
+
+def get_homework_for_class(class_name, section=None):
+    rows = db_select("homework", {"class_name": class_name}, order_by="due_date", descending=True)
+    # Filter section (only matching or blank)
+    if section:
+        rows = [r for r in rows if not r.get("section") or r["section"] == section]
+    else:
+        rows = [r for r in rows if not r.get("section")]
+    return rows
+
+def delete_homework(homework_id):
+    return db_delete("homework", homework_id)
