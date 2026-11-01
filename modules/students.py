@@ -24,8 +24,6 @@ def add():
             
         # Student create karna
         sid = create_student(data)
-        
-        # Activity log
         log_activity(
             session.get("admin_id"),
             session.get("admin_name", "Admin"),
@@ -33,12 +31,8 @@ def add():
             "Student",
             f"Name: {data.get('name')}"
         )
-        
-        # Success message aur redirect
         flash(f"Student add ho gaya (ID: {sid})", "success")
         return redirect(url_for("students.index"))
-        
-    # GET Request ke liye form dikhana (Yeh IF block ke bahar hai)
     return render_template("students/form.html", student=None)
 
 @students_bp.route("/<int:student_id>/edit", methods=["GET", "POST"])
