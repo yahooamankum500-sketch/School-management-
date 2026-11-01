@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from modules.auth import login_required
-from database import create_student, get_students, get_student, update_student, delete_student
+from database import create_student, get_students, get_student, update_student, delete_student, log_activity
+from flask import session
 
 students_bp = Blueprint("students", __name__, url_prefix="/students")
 
@@ -19,8 +20,19 @@ def add():
         if not data.get("name") or not data.get("class_name"):
             flash("Name aur Class zaroori hai", "error")
             return redirect(url_for("students.add"))
-        create_student(data)
-        flash("Student successfully add ho gaya!", "success")
+        sid = create_student(data)
+
+# Log activity
+log_activity(
+    session.get("admin_id"), 
+    session.get("admin_name", "Admin"), 
+    "Added Student", 
+    "Student", 
+    f"Name: {data.get('name')}"
+)
+
+flash(f"Student add ho gaya (ID: {sid})", "success")
+return redirect(url_for("students.index"))
         return redirect(url_for("students.index"))
     return render_template("students/form.html", student=None)
 
