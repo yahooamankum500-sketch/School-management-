@@ -12,6 +12,7 @@ from modules.parent import parent_bp
 from modules.teacher import teacher_bp
 from modules.library import library_bp
 from modules.transport import transport_bp
+from modules.hostel import hostel_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -28,6 +29,7 @@ app.register_blueprint(parent_bp)
 app.register_blueprint(teacher_bp)
 app.register_blueprint(library_bp)
 app.register_blueprint(transport_bp)
+app.register_blueprint(hostel_bp)
 
 @app.route("/")
 def home():
