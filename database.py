@@ -960,3 +960,74 @@ def delete_exam_question(q_id, exam_id):
     all_qs = db_select("exam_questions", {"exam_id": exam_id})
     total = sum(int(x.get("marks") or 1) for x in all_qs)
     db_update("online_exams", exam_id, {"total_marks": total})
+    # ============================================================
+# PHASE 23B: ONLINE EXAMS (STUDENT SIDE)
+# ============================================================
+def get_published_exams_for_class(class_name):
+    return db_select("online_exams", {"class_name": class_name, "is_published": True}, order_by="created_at", descending=True)
+
+def get_exam_attempt(exam_id, student_id):
+    rows = db_select("exam_attempts", {"exam_id": exam_id, "student_id": student_id}, limit=1)
+    return rows[0] if rows else None
+
+def start_exam_attempt(exam_id, student_id):
+    return db_insert("exam_attempts", {
+        "exam_id": exam_id,
+        "student_id": student_id,
+        "status": "in_progress"
+    })
+
+def submit_exam_attempt(attempt_id, exam_id, student_id, answers_dict):
+    from datetime import datetime
+    
+    # 1. Questions fetch karo correct answers ke saath
+    questions = db_select("exam_questions", {"exam_id": exam_id})
+    
+    total_score = 0
+    
+    # 2. Har answer ko check karo
+    for q in questions:
+        q_id = str(q["id"])
+        selected = answers_dict.get(q_id, None)
+        is_correct = (selected == q["correct_option"])
+        
+        if is_correct:
+            total_score += int(q.get("marks") or 1)
+            
+        # 3. Har answer ko database mein save karo
+        db_insert("exam_answers", {
+            "attempt_id": attempt_id,
+            "question_id": q["id"],
+            "selected_option": selected,
+            "is_correct": is_correct
+        })
+        
+    # 4. Attempt update karo
+    db_update("exam_attempts", attempt_id, {
+        "score": total_score,
+        "status": "submitted",
+        "submitted_at": datetime.now().isoformat()
+    })
+    
+    return total_score
+
+def get_exam_attempt_details(attempt_id):
+    # Result page ke liye details
+    attempt = db_get("exam_attempts", attempt_id)
+    exam = db_get("online_exams", attempt["exam_id"]) if attempt else None
+    
+    # Answers fetch karo question details ke saath
+    # Note: Supabase mein direct JOIN thoda complex hai, isliye hum manually fetch karenge
+    answers = db_select("exam_answers", {"attempt_id": attempt_id})
+    
+    detailed_answers = []
+    for a in answers:
+        q = db_get("exam_questions", a["question_id"])
+        detailed_answers.append({
+            "question_text": q["question_text"] if q else "Deleted Question",
+            "selected": a["selected_option"],
+            "correct_option": q["correct_option"] if q else "?",
+            "is_correct": a["is_correct"]
+        })
+        
+    return {"attempt": attempt, "exam": exam, "answers": detailed_answers}
