@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Parent Portal - {% block title %}Dashboard{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; background: #f5f6fa; margin: 0; }
+        .topbar { background: #1e293b; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .topbar .brand { font-size: 18px; font-weight: bold; text-decoration: none; color: white; }
+        .nav-links { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .nav-links a { color: #cbd5e1; text-decoration: none; font-size: 14px; }
+        .nav-links a:hover { color: white; }
+        .nav-links a.logout { color: #ef4444; font-weight: bold; }
+        .container { padding: 20px; max-width: 900px; margin: auto; }
+        .flash { padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 14px; }
+        .flash.error { background: #fee2e2; color: #991b1b; }
+        .flash.success { background: #d1fae5; color: #065f46; }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/parent/dashboard" class="brand">👨‍👩‍👧 Parent Portal</a>
+        <div class="nav-links">
+            <a href="/parent/dashboard">Dashboard</a>
+            <a href="/parent/homework">Homework</a>
+            <a href="/parent/notices">Notices</a>
+            <a href="/parent/online-exams">Online Exams</a>
+            <a href="/parent/logout" class="logout">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for cat, msg in messages %}
+                <div class="flash {{ cat }}">{{ msg }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
