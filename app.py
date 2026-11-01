@@ -23,6 +23,7 @@ from modules.events import events_bp
 from modules.reports import reports_bp
 from modules.reminders import reminders_bp
 from modules.online_exams import online_exams_bp
+from modules.visitors import visitors_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 Session(app)
@@ -49,7 +50,7 @@ app.register_blueprint(events_bp)
 app.register_blueprint(reports_bp)
 app.register_blueprint(reminders_bp)
 app.register_blueprint(online_exams_bp)
-
+app.register_blueprint(visitors_bp)
 @app.route("/")
 def home():
     return redirect(url_for("auth.login"))
