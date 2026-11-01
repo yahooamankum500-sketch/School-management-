@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+    
+    <!-- LEFT SIDE: Check-In Form -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>New Visitor Check-In</h3>
+            <form method="POST" action="/visitors/check-in" style="margin-top:15px;">
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:13px; color:#666;">Visitor Name *</label>
+                    <input type="text" name="name" required placeholder="e.g. Ramesh Kumar" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                </div>
+                
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:13px; color:#666;">Phone Number</label>
+                    <input type="text" name="phone" placeholder="9876543210" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                </div>
+
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:13px; color:#666;">Purpose *</label>
+                    <select name="purpose" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                        <option value="">Select Purpose</option>
+                        <option value="Meeting">Meeting with Principal/Teacher</option>
+                        <option value="Fees">Fee Payment</option>
+                        <option value="Delivery">Delivery</option>
+                        <option value="Enquiry">Admission Enquiry</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:13px; color:#666;">Meeting With</label>
+                    <input type="text" name="meeting_with" placeholder="e.g. Principal" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                </div>
+                
+                <button type="submit" style="background:#3b82f6; color:white; padding:10px 15px; border:none; border-radius:5px; cursor:pointer; width:100%; font-weight:bold;">
+                    Check-In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: Lists -->
+    <div>
+        <!-- Active Visitors -->
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3 style="color:#10b981;">Currently Inside ({{ active|length }})</h3>
+            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                <tr style="background:#f8fafc;">
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">Visitor</th>
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">Purpose</th>
+                    <th style="padding:8px; text-align:left; border-bottom:1px solid #ddd;">In Time</th>
+                    <th style="padding:8px; text-align:right; border-bottom:1px solid #ddd;">Action</th>
+                </tr>
+                {% for v in active %}
+                <tr>
+                    <td style="padding:8px; border-bottom:1px solid #eee;">
+                        <strong>{{ v.name }}</strong><br><small style="color:#666;">{{ v.phone or '-' }}</small>
+                    </td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; font-size:13px;">{{ v.purpose }}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; font-size:12px;">{{ v.in_time[11:16] }}</td>
+                    <td style="padding:8px; border-bottom:1px solid #eee; text-align:right;">
+                        <form method="POST" action="/visitors/check-out/{{ v.id }}" style="display:inline;">
+                            <button type="submit" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">Check-Out</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" style="padding:15px; text-align:center; color:#666;">Koi visitor andar nahi hai.</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- History -->
+        <div style="background:white; padding:20px; border-radius:8px; max-height:300px; overflow-y:auto;">
+            <h3 style="color:#64748b; font-size:16px;">Recent History</h3>
+            <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                {% for h in history %}
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px; font-size:13px;"><strong>{{ h.name }}</strong> ({{ h.purpose }})</td>
+                    <td style="padding:8px; text-align:right; font-size:11px; color:#999;">
+                        In: {{ h.in_time[11:16] }} | Out: {{ h.out_time[11:16] if h.out_time else 'Still in' }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
