@@ -639,3 +639,51 @@ def mark_salary_paid(record_id):
         "status": "paid",
         "paid_at": datetime.now().isoformat()
     })
+    # ============================================================
+# PHASE 13: EXPENSES & PROFIT/LOSS
+# ============================================================
+def create_expense(data):
+    return db_insert("expenses", {
+        "category": data.get("category"),
+        "description": data.get("description"),
+        "amount": float(data.get("amount") or 0),
+        "expense_date": data.get("expense_date") or None
+    })
+
+def get_expenses(month=None):
+    # month format: 'YYYY-MM'
+    filters = {}
+    rows = db_select("expenses", order_by="expense_date", descending=True)
+    
+    if month:
+        # Python se filter kar lenge kyunki supabase-py mein date prefix query thodi tricky hoti hai
+        rows = [r for r in rows if r.get("expense_date") and r["expense_date"].startswith(month)]
+        
+    return rows
+
+def get_pnl(month):
+    # 1. Total Income (Fees Collected in that month)
+    fee_payments = db_select("fee_payments", {"month": month})
+    total_fees = sum(float(f.get("amount") or 0) for f in fee_payments)
+
+    # 2. Total Salary Paid in that month
+    salary_records = db_select("salary_records", {"month": month, "status": "paid"})
+    total_salary = sum(float(s.get("amount") or 0) for s in salary_records)
+
+    # 3. Total Other Expenses in that month
+    exp_records = get_expenses(month)
+    total_expenses = sum(float(e.get("amount") or 0) for e in exp_records)
+
+    # 4. Net Profit / Loss
+    total_outflow = total_salary + total_expenses
+    net_profit = total_fees - total_outflow
+
+    return {
+        "month": month,
+        "fees": total_fees,
+        "salary": total_salary,
+        "expenses": total_expenses,
+        "total_outflow": total_outflow,
+        "net": net_profit,
+        "is_profit": net_profit >= 0
+    }
