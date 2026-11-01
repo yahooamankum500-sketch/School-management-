@@ -908,3 +908,55 @@ def get_fee_collection_data(month):
             "date": p.get("paid_at")[:10] if p.get("paid_at") else "-"
         })
     return result
+    # ============================================================
+# PHASE 23: ONLINE EXAMS (MCQ)
+# ============================================================
+def create_online_exam(data):
+    return db_insert("online_exams", {
+        "title": data.get("title"),
+        "class_name": data.get("class_name"),
+        "duration_minutes": int(data.get("duration_minutes") or 30),
+        "is_published": False
+    })
+
+def get_online_exams():
+    return db_select("online_exams", order_by="created_at", descending=True)
+
+def get_online_exam(exam_id):
+    return db_get("online_exams", exam_id)
+
+def delete_online_exam(exam_id):
+    return db_delete("online_exams", exam_id)
+
+def toggle_exam_publish(exam_id, status):
+    return db_update("online_exams", exam_id, {"is_published": status})
+
+def add_exam_question(exam_id, data):
+    # 1. Question insert karo
+    q = db_insert("exam_questions", {
+        "exam_id": exam_id,
+        "question_text": data.get("question_text"),
+        "option_a": data.get("option_a"),
+        "option_b": data.get("option_b"),
+        "option_c": data.get("option_c"),
+        "option_d": data.get("option_d"),
+        "correct_option": data.get("correct_option"),
+        "marks": int(data.get("marks") or 1)
+    })
+    
+    # 2. Exam ka total marks update karo
+    all_qs = db_select("exam_questions", {"exam_id": exam_id})
+    total = sum(int(x.get("marks") or 1) for x in all_qs)
+    db_update("online_exams", exam_id, {"total_marks": total})
+    
+    return q
+
+def get_exam_questions(exam_id):
+    return db_select("exam_questions", {"exam_id": exam_id})
+
+def delete_exam_question(q_id, exam_id):
+    db_delete("exam_questions", q_id)
+    # Marks recalculate
+    all_qs = db_select("exam_questions", {"exam_id": exam_id})
+    total = sum(int(x.get("marks") or 1) for x in all_qs)
+    db_update("online_exams", exam_id, {"total_marks": total})
