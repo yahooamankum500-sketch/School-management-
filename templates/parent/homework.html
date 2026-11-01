@@ -1,0 +1,48 @@
+{% extends "parent/base.html" %}
+{% block title %}Homework{% endblock %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h2 style="color:#1e293b; margin:0;">Homework</h2>
+    
+    {% if children|length > 1 %}
+    <form method="GET">
+        <select name="child_id" onchange="this.form.submit()" style="padding:8px; border-radius:5px; border:1px solid #ccc;">
+            {% for c in children %}
+            <option value="{{ c.id }}" {% if c.id == selected_child.id %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    {% endif %}
+</div>
+
+<p style="color:#666; font-size:14px; margin-bottom:20px;">
+    {{ selected_child.name }} (Class {{ selected_child.class_name }}) ke liye homework.
+</p>
+
+{% for h in homework %}
+<div style="background:white; padding:15px; border-radius:10px; margin-bottom:12px; box-shadow:0 2px 5px rgba(0,0,0,0.05);
+    border-left:4px solid {% if h.status == 'overdue' %}#ef4444{% elif h.status == 'today' %}#f59e0b{% else %}#3b82f6{% endif %};">
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:8px;">
+        <strong style="font-size:16px; color:#1e293b;">{{ h.title }}</strong>
+        <span style="background:#eff6ff; color:#1e40af; padding:2px 8px; border-radius:3px; font-size:11px; font-weight:bold;">{{ h.subject }}</span>
+        {% if h.status == 'overdue' %}
+        <span style="background:#fee2e2; color:#991b1b; padding:2px 8px; border-radius:3px; font-size:11px; font-weight:bold;">OVERDUE</span>
+        {% elif h.status == 'today' %}
+        <span style="background:#fef3c7; color:#92400e; padding:2px 8px; border-radius:3px; font-size:11px; font-weight:bold;">DUE TODAY</span>
+        {% endif %}
+    </div>
+    {% if h.description %}
+    <p style="color:#475569; font-size:14px; margin:0 0 8px 0;">{{ h.description }}</p>
+    {% endif %}
+    {% if h.due_date %}
+    <div style="font-size:12px; color:#94a3b8;">📅 Due: {{ h.due_date }}</div>
+    {% endif %}
+</div>
+{% else %}
+<div style="background:white; padding:30px; border-radius:10px; text-align:center; color:#666;">
+    Abhi koi homework nahi hai.
+</div>
+{% endfor %}
+
+{% endblock %}
