@@ -585,3 +585,57 @@ def get_hostel_inmates(hostel_id):
                 "check_in": a["created_at"][:10]
             })
     return result
+    # ============================================================
+# PHASE 12: STAFF & SALARY MANAGEMENT
+# ============================================================
+def create_staff(data):
+    return db_insert("staff", {
+        "name": data.get("name"),
+        "role": data.get("role"),
+        "phone": data.get("phone"),
+        "salary": float(data.get("salary") or 0)
+    })
+
+def get_staff_list():
+    return db_select("staff", {"status": "active"}, order_by="name")
+
+def generate_monthly_salary(month):
+    # 1. Saare active staff fetch karo
+    staff_list = get_staff_list()
+    created_count = 0
+    
+    # 2. Har staff ke liye us month ki salary record banao (agar pehle se na ho)
+    for s in staff_list:
+        if s["salary"] > 0:
+            try:
+                db_insert("salary_records", {
+                    "staff_id": s["id"],
+                    "month": month,
+                    "amount": s["salary"],
+                    "status": "pending"
+                })
+                created_count += 1
+            except Exception:
+                # Agar record pehle se hai (Unique constraint), toh skip kar do
+                pass
+                
+    return created_count
+
+def get_salary_records(month):
+    # Is month ke saare records fetch karo
+    records = db_select("salary_records", {"month": month})
+    
+    # Staff ka naam jodo
+    for r in records:
+        staff = db_get("staff", r["staff_id"])
+        r["staff_name"] = staff.get("name") if staff else "Unknown"
+        r["role"] = staff.get("role") if staff else "-"
+        
+    return records
+
+def mark_salary_paid(record_id):
+    from datetime import datetime
+    return db_update("salary_records", record_id, {
+        "status": "paid",
+        "paid_at": datetime.now().isoformat()
+    })
