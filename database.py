@@ -1031,3 +1031,30 @@ def get_exam_attempt_details(attempt_id):
         })
         
     return {"attempt": attempt, "exam": exam, "answers": detailed_answers}
+    # ============================================================
+# PHASE 24: VISITOR MANAGEMENT
+# ============================================================
+def log_visitor_in(name, phone, purpose, meeting_with):
+    from datetime import datetime
+    return db_insert("visitors", {
+        "name": name,
+        "phone": phone,
+        "purpose": purpose,
+        "meeting_with": meeting_with,
+        "in_time": datetime.now().isoformat(),
+        "status": "in"
+    })
+
+def log_visitor_out(visitor_id):
+    from datetime import datetime
+    return db_update("visitors", visitor_id, {
+        "out_time": datetime.now().isoformat(),
+        "status": "out"
+    })
+
+def get_active_visitors():
+    return db_select("visitors", {"status": "in"}, order_by="in_time", descending=True)
+
+def get_visitor_history(limit=50):
+    rows = db_select("visitors", order_by="created_at", descending=True, limit=limit)
+    return rows
