@@ -38,12 +38,13 @@ app.register_blueprint(expenses_bp)
 @app.route("/")
 def home():
     return redirect(url_for("auth.login"))
-    from database import get_dashboard_stats
+
+from database import get_dashboard_stats
 
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
-
+    stats = get_dashboard_stats()
+    return render_template("dashboard.html", stats=stats)
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
