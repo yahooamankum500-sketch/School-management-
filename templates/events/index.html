@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+    
+    <!-- LEFT SIDE: Add Event Form -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Add New Event</h3>
+            <form method="POST" style="margin-top:15px;">
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:13px; color:#666;">Event Title *</label>
+                    <input type="text" name="title" required placeholder="e.g. Annual Sports Day" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                </div>
+                
+                <div style="margin-bottom:10px;">
+                    <label style="font-size:13px; color:#666;">Date *</label>
+                    <input type="date" name="event_date" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div>
+                        <label style="font-size:13px; color:#666;">Time</label>
+                        <input type="text" name="start_time" placeholder="09:00 AM" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                    </div>
+                    <div>
+                        <label style="font-size:13px; color:#666;">Venue</label>
+                        <input type="text" name="venue" placeholder="School Ground" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:15px;">
+                    <label style="font-size:13px; color:#666;">Description (Optional)</label>
+                    <textarea name="description" rows="3" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;"></textarea>
+                </div>
+                
+                <button type="submit" style="background:#3b82f6; color:white; padding:10px 15px; border:none; border-radius:5px; cursor:pointer; width:100%; font-weight:bold;">
+                    + Add Event
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: Events List -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px;">
+            <h3>Upcoming Events & Calendar</h3>
+            
+            <div style="display:flex; flex-direction:column; gap:15px; margin-top:15px;">
+                {% for e in events %}
+                <div style="display:flex; gap:15px; align-items:flex-start; border-bottom:1px solid #eee; padding-bottom:15px;">
+                    <!-- Date Box -->
+                    <div style="background:#eff6ff; color:#1e40af; padding:10px; border-radius:8px; text-align:center; min-width:60px;">
+                        <div style="font-size:20px; font-weight:bold; line-height:1;">{{ e.event_date[8:10] }}</div>
+                        <div style="font-size:11px; font-weight:bold; text-transform:uppercase;">{{ e.event_date[5:7] }}</div>
+                    </div>
+                    
+                    <!-- Event Details -->
+                    <div style="flex:1;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <h4 style="margin:0; color:#1e293b; font-size:16px;">{{ e.title }}</h4>
+                            <form method="POST" action="/events/delete/{{ e.id }}" onsubmit="return confirm('Delete event?');">
+                                <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:13px;">Delete</button>
+                            </form>
+                        </div>
+                        <div style="font-size:12px; color:#64748b; margin-top:3px;">
+                            {% if e.start_time %}⏰ {{ e.start_time }} | {% endif %}
+                            {% if e.venue %}📍 {{ e.venue }}{% endif %}
+                        </div>
+                        {% if e.description %}
+                        <p style="margin:8px 0 0 0; font-size:13px; color:#475569;">{{ e.description }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <p style="color:#666; text-align:center; padding:20px 0;">Koi upcoming event nahi hai.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
