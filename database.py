@@ -781,3 +781,53 @@ def calculate_student_fee(student_id, class_name):
         "discount": total_discount_amount,
         "final_fee": final_fee
     }
+    # ============================================================
+# PHASE 19: STAFF ATTENDANCE & LEAVES
+# ============================================================
+def mark_staff_attendance(staff_id, date_str, status):
+    return db_upsert("staff_attendance", {
+        "staff_id": staff_id,
+        "attendance_date": date_str,
+        "status": status
+    }, on_conflict="staff_id,attendance_date")
+
+def get_staff_attendance_for_date(date_str):
+    # 1. Saare active staff fetch karo
+    staff_list = db_select("staff", {"status": "active"}, order_by="name")
+    
+    # 2. Us din ki attendance fetch karo
+    att_rows = db_select("staff_attendance", {"attendance_date": date_str})
+    att_map = {str(a["staff_id"]): a["status"] for a in att_rows}
+    
+    # 3. Dono ko merge karo
+    result = []
+    for s in staff_list:
+        result.append({
+            "id": s["id"],
+            "name": s["name"],
+            "role": s["role"],
+            "status": att_map.get(str(s["id"]), None)
+        })
+    return result
+
+def apply_leave(staff_id, from_date, to_date, reason):
+    return db_insert("leave_requests", {
+        "staff_id": staff_id,
+        "from_date": from_date,
+        "to_date": to_date,
+        "reason": reason
+    })
+
+def get_leave_requests(status=None):
+    filters = {"status": status} if status else None
+    rows = db_select("leave_requests", filters, order_by="created_at", descending=True)
+    
+    # Staff ka naam jodo
+    for r in rows:
+        staff = db_get("staff", r["staff_id"])
+        r["staff_name"] = staff.get("name") if staff else "Unknown"
+        
+    return rows
+
+def update_leave_status(leave_id, status):
+    return db_update("leave_requests", leave_id, {"status": status})
