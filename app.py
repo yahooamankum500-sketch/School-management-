@@ -21,7 +21,7 @@ from modules.discounts import discounts_bp
 from modules.staff_attendance import staff_att_bp
 from modules.events import events_bp
 from modules.reports import reports_bp
-
+from modules.reminders import reminders_bp
 app = Flask(__name__)
 app.config.from_object(Config)
 Session(app)
@@ -46,6 +46,7 @@ app.register_blueprint(discounts_bp)
 app.register_blueprint(staff_att_bp)
 app.register_blueprint(events_bp)
 app.register_blueprint(reports_bp)
+app.register_blueprint(reminders_bp)
 
 @app.route("/")
 def home():
