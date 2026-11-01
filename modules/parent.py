@@ -5,6 +5,12 @@ from database import (
     get_child_attendance_summary, get_child_pending_fees,
     get_exam_marks, get_exams, get_notices
 )
+from database import (
+    # ... purane imports ...
+    get_published_exams_for_class, get_exam_attempt, 
+    start_exam_attempt, submit_exam_attempt, get_exam_attempt_details,
+    get_exam_questions, get_online_exam # Ye pehle se ho sakte hain
+)
 
 parent_bp = Blueprint("parent", __name__, url_prefix="/parent")
 
@@ -90,3 +96,92 @@ def dashboard():
     notices = get_notices(limit=3)
     
     return render_template("parent/dashboard.html", children=children_data, notices=notices)
+    # ============================================================
+# ONLINE EXAMS (PARENT PORTAL)
+# ============================================================
+@parent_bp.route("/online-exams")
+@parent_required
+def online_exams():
+    children = get_children_for_parent(session["parent_phone"])
+    if not children:
+        flash("Koi student record nahi mila.", "error")
+        return redirect(url_for("parent.dashboard"))
+        
+    child_id = request.args.get("child_id", type=int)
+    selected_child = next((c for c in children if c["id"] == child_id), children[0])
+    
+    # Us child ki class ke published exams
+    exams = get_published_exams_for_class(selected_child["class_name"])
+    
+    # Har exam ke liye check karo ki attempt hua hai ya nahi
+    for e in exams:
+        attempt = get_exam_attempt(e["id"], selected_child["id"])
+        e["attempt"] = attempt
+        
+    return render_template("parent/online_exams.html", 
+                           children=children, 
+                           selected_child=selected_child, 
+                           exams=exams)
+
+@parent_bp.route("/online-exams/start/<int:exam_id>")
+@parent_required
+def start_online_exam(exam_id):
+    children = get_children_for_parent(session["parent_phone"])
+    child_id = request.args.get("child_id", type=int)
+    selected_child = next((c for c in children if c["id"] == child_id), children[0])
+    
+    exam = get_online_exam(exam_id)
+    if not exam or exam["class_name"] != selected_child["class_name"]:
+        flash("Ye exam aapke bachche ke liye nahi hai.", "error")
+        return redirect(url_for("parent.online_exams"))
+        
+    attempt = get_exam_attempt(exam_id, selected_child["id"])
+    
+    if attempt and attempt["status"] == "submitted":
+        flash("Aap ye exam de chuke hain.", "error")
+        return redirect(url_for("parent.online_exams", child_id=selected_child["id"]))
+        
+    if not attempt:
+        start_exam_attempt(exam_id, selected_child["id"])
+        
+    return redirect(url_for("parent.take_online_exam", exam_id=exam_id, child_id=selected_child["id"]))
+
+@parent_bp.route("/online-exams/take/<int:exam_id>", methods=["GET", "POST"])
+@parent_required
+def take_online_exam(exam_id):
+    children = get_children_for_parent(session["parent_phone"])
+    child_id = request.args.get("child_id", type=int)
+    selected_child = next((c for c in children if c["id"] == child_id), children[0])
+    
+    exam = get_online_exam(exam_id)
+    attempt = get_exam_attempt(exam_id, selected_child["id"])
+    
+    if not exam or not attempt or attempt["status"] == "submitted":
+        return redirect(url_for("parent.online_exams", child_id=selected_child["id"]))
+
+    if request.method == "POST":
+        # Form se answers collect karo (q_id -> option)
+        answers = {}
+        for key, val in request.form.items():
+            if key.startswith("q_"):
+                answers[key.split("_")[1]] = val
+                
+        score = submit_exam_attempt(attempt["id"], exam_id, selected_child["id"], answers)
+        flash(f"Exam submit ho gaya! Score: {score}/{exam['total_marks']}", "success")
+        return redirect(url_for("parent.online_exams", child_id=selected_child["id"]))
+
+    questions = get_exam_questions(exam_id)
+    return render_template("parent/take_exam.html", exam=exam, questions=questions, child=selected_child)
+
+@parent_bp.route("/online-exams/result/<int:attempt_id>")
+@parent_required
+def exam_result(attempt_id):
+    details = get_exam_attempt_details(attempt_id)
+    if not details["attempt"]:
+        flash("Result nahi mila", "error")
+        return redirect(url_for("parent.dashboard"))
+        
+    return render_template("parent/exam_result.html", 
+                           attempt=details["attempt"], 
+                           exam=details["exam"], 
+                           answers=details["answers"])
