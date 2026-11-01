@@ -17,10 +17,23 @@ def index():
 def add():
     if request.method == "POST":
         data = request.form.to_dict()
+        
+        # Validation check
         if not data.get("name") or not data.get("class_name"):
             flash("Name aur Class zaroori hai", "error")
             return redirect(url_for("students.add"))
+            
+        # Student create karna
         sid = create_student(data)
+        
+        # Activity log (agar aapke paas hai toh)
+        # log_activity(...)
+        
+        flash(f"Student add ho gaya (ID: {sid})", "success")
+        return redirect(url_for("students.index"))
+        
+    # Ye line POST block ke BAHAR hogi, taaki GET request par form dikhe
+    return render_template("students/form.html", student=None)
 
 # Log activity
 log_activity(
@@ -33,7 +46,6 @@ log_activity(
 
 flash(f"Student add ho gaya (ID: {sid})", "success")
 return redirect(url_for("students.index"))
-        return redirect(url_for("students.index"))
     return render_template("students/form.html", student=None)
 
 @students_bp.route("/<int:student_id>/edit", methods=["GET", "POST"])
