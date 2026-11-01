@@ -687,3 +687,37 @@ def get_pnl(month):
         "net": net_profit,
         "is_profit": net_profit >= 0
     }
+    # ============================================================
+# PHASE 14: DASHBOARD ANALYTICS
+# ============================================================
+def get_dashboard_stats():
+    from datetime import datetime
+    current_month = datetime.now().strftime("%Y-%m")
+    today_date = datetime.now().strftime("%Y-%m-%d")
+    
+    # 1. Total Active Students
+    students = db_select("students", {"status": "active"})
+    total_students = len(students)
+    
+    # 2. Fees Collected (This Month)
+    fees = db_select("fee_payments", {"month": current_month})
+    total_fees = sum(float(f.get("amount") or 0) for f in fees)
+    
+    # 3. Expenses (This Month)
+    expenses = db_select("expenses", order_by="expense_date", descending=True)
+    month_expenses = [e for e in expenses if e.get("expense_date") and e["expense_date"].startswith(current_month)]
+    total_expenses = sum(float(e.get("amount") or 0) for e in month_expenses)
+    
+    # 4. Today's Attendance
+    today_att = db_select("attendance", {"attendance_date": today_date})
+    present_count = sum(1 for a in today_att if a.get("status") == "present")
+    absent_count = sum(1 for a in today_att if a.get("status") == "absent")
+    
+    return {
+        "total_students": total_students,
+        "total_fees": total_fees,
+        "total_expenses": total_expenses,
+        "today_present": present_count,
+        "today_absent": absent_count,
+        "current_month": current_month
+    }
