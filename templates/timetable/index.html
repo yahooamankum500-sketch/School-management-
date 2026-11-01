@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:white; padding:20px; border-radius:8px;">
+    <h2>Timetable Management</h2>
+    
+    <!-- Class Selector -->
+    <form method="GET" style="margin-bottom:20px; display:flex; gap:10px;">
+        <select name="class_name" required style="padding:8px; border:1px solid #ccc; border-radius:5px; flex:1; max-width:200px;">
+            <option value="">Select Class</option>
+            {% for c in classes %}
+            <option value="{{ c }}" {% if c == selected_class %}selected{% endif %}>Class {{ c }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" style="padding:8px 15px; background:#3b82f6; color:white; border:none; border-radius:5px; cursor:pointer;">Load Timetable</button>
+    </form>
+
+    {% if selected_class %}
+    <!-- Add Period Form -->
+    <form method="POST" style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap;">
+        <input type="hidden" name="class_name" value="{{ selected_class }}">
+        <select name="day_of_week" required style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+            <option value="">Day</option>
+            {% for d in days %}<option value="{{ d }}">{{ d }}</option>{% endfor %}
+        </select>
+        <select name="period_number" required style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+            <option value="">Period</option>
+            {% for p in periods %}<option value="{{ p }}">P{{ p }}</option>{% endfor %}
+        </select>
+        <input type="text" name="subject" placeholder="Subject (e.g. Math)" required style="padding:8px; border:1px solid #ccc; border-radius:5px; flex:1; min-width:120px;">
+        <input type="text" name="teacher_name" placeholder="Teacher (Optional)" style="padding:8px; border:1px solid #ccc; border-radius:5px; flex:1; min-width:120px;">
+        <button type="submit" style="background:#10b981; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer;">+ Add</button>
+    </form>
+
+    <!-- Timetable Grid -->
+    <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; min-width:600px; text-align:center;">
+            <tr style="background:#1e293b; color:white;">
+                <th style="padding:10px; border:1px solid #475569;">Day</th>
+                {% for p in periods %}
+                <th style="padding:10px; border:1px solid #475569;">P{{ p }}</th>
+                {% endfor %}
+            </tr>
+            {% for d in days %}
+            <tr>
+                <td style="padding:10px; border:1px solid #eee; background:#f8fafc; font-weight:bold;">{{ d }}</td>
+                {% for p in periods %}
+                    {% set entry = grid[d][p] %}
+                    <td style="padding:8px; border:1px solid #eee; vertical-align:top; {% if entry %}background:#eff6ff;{% endif %}">
+                        {% if entry %}
+                            <div style="font-weight:bold; color:#1e40af; font-size:13px;">{{ entry.subject }}</div>
+                            <div style="font-size:11px; color:#64748b;">{{ entry.teacher_name or '' }}</div>
+                            <form method="POST" action="/timetable/delete/{{ entry.id }}" style="margin-top:5px;">
+                                <input type="hidden" name="class_name" value="{{ selected_class }}">
+                                <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer; font-size:11px;">Delete</button>
+                            </form>
+                        {% else %}
+                            <span style="color:#cbd5e1;">-</span>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
