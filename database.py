@@ -1102,3 +1102,23 @@ def update_settings(data):
         "email": data.get("email"),
         "logo_url": data.get("logo_url")
     })
+    # ============================================================
+# PHASE 26: MEDICAL RECORDS
+# ============================================================
+def get_medical_record(student_id):
+    rows = db_select("medical_records", {"student_id": student_id})
+    return rows[0] if rows else None
+
+def save_medical_record(student_id, data):
+    # Upsert logic: Agar record hai toh update karo, nahi toh insert karo
+    return db_upsert("medical_records", {
+        "student_id": student_id,
+        "blood_group": data.get("blood_group"),
+        "allergies": data.get("allergies"),
+        "medical_conditions": data.get("medical_conditions"),
+        "emergency_contact_name": data.get("emergency_contact_name"),
+        "emergency_contact_phone": data.get("emergency_contact_phone"),
+        "doctor_name": data.get("doctor_name"),
+        "doctor_phone": data.get("doctor_phone"),
+        "notes": data.get("notes")
+    }, on_conflict="student_id")
