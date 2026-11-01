@@ -189,3 +189,35 @@ def exam_result(attempt_id):
                            attempt=details["attempt"], 
                            exam=details["exam"], 
                            answers=details["answers"])
+    # ============================================================
+# HOMEWORK (PARENT VIEW)
+# ============================================================
+@parent_bp.route("/homework")
+@parent_required
+def homework():
+    children = get_children_for_parent(session["parent_phone"])
+    if not children:
+        flash("Koi student record nahi mila.", "error")
+        return redirect(url_for("parent.dashboard"))
+        
+    child_id = request.args.get("child_id", type=int)
+    selected_child = next((c for c in children if c["id"] == child_id), children[0])
+    
+    homework_list = get_homework_for_class(
+        selected_child["class_name"], 
+        selected_child.get("section")
+    )
+    
+    # Due date status assign karo
+    from datetime import date
+    today = date.today().isoformat()
+    for h in homework_list:
+        if h.get("due_date"):
+            h["status"] = "overdue" if h["due_date"] < today else ("today" if h["due_date"] == today else "upcoming")
+        else:
+            h["status"] = "no_due"
+    
+    return render_template("parent/homework.html", 
+                           children=children, 
+                           selected_child=selected_child, 
+                           homework=homework_list)
