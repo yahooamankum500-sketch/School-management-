@@ -856,3 +856,55 @@ def get_events(limit=50):
 
 def delete_event(event_id):
     return db_delete("events", event_id)
+    # ============================================================
+# PHASE 21: REPORTS & DATA EXPORT
+# ============================================================
+def get_fee_defaulters_data(month):
+    # 1. Saare active students fetch karo
+    students = db_select("students", {"status": "active"})
+    
+    # 2. Us month ki saari payments fetch karo
+    payments = db_select("fee_payments", {"month": month})
+    
+    # 3. Fee structure fetch karo (Class wise)
+    structures = db_select("fee_structure")
+    
+    defaulters = []
+    for s in students:
+        # Class ki total fees calculate karo
+        class_fees = sum(float(f["amount"]) for f in structures if f["class_name"] == s.get("class_name"))
+        
+        # Is student ne kitna pay kiya
+        paid = sum(float(p["amount"]) for p in payments if p["student_id"] == s["id"])
+        
+        pending = class_fees - paid
+        if pending > 0:
+            defaulters.append({
+                "id": s["id"],
+                "name": s["name"],
+                "class_name": s.get("class_name"),
+                "section": s.get("section"),
+                "parent_phone": s.get("parent_phone"),
+                "total_fee": class_fees,
+                "paid": paid,
+                "pending": pending
+            })
+    return defaulters
+
+def get_fee_collection_data(month):
+    # Us month ki saari payments fetch karo
+    payments = db_select("fee_payments", {"month": month}, order_by="paid_at", descending=True)
+    
+    result = []
+    for p in payments:
+        student = db_get("students", p["student_id"])
+        result.append({
+            "receipt_no": p.get("receipt_no"),
+            "student_name": student.get("name") if student else "Unknown",
+            "class_name": student.get("class_name") if student else "-",
+            "fee_type": p.get("fee_type"),
+            "amount": p.get("amount"),
+            "mode": p.get("mode"),
+            "date": p.get("paid_at")[:10] if p.get("paid_at") else "-"
+        })
+    return result
