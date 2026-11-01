@@ -14,6 +14,7 @@ from modules.library import library_bp
 from modules.transport import transport_bp
 from modules.hostel import hostel_bp
 from modules.staff import staff_bp
+from modules.expenses import expenses_bp
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -32,6 +33,7 @@ app.register_blueprint(library_bp)
 app.register_blueprint(transport_bp)
 app.register_blueprint(hostel_bp)
 app.register_blueprint(staff_bp)
+app.register_blueprint(expenses_bp)
 
 @app.route("/")
 def home():
