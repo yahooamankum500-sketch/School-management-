@@ -1,0 +1,49 @@
+{% extends "parent/base.html" %}
+{% block title %}Online Exams{% endblock %}
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+    <h2 style="color:#1e293b; margin:0;">Online Exams</h2>
+    
+    {% if children|length > 1 %}
+    <form method="GET" style="display:flex; gap:10px;">
+        <select name="child_id" onchange="this.form.submit()" style="padding:8px; border-radius:5px; border:1px solid #ccc;">
+            {% for c in children %}
+            <option value="{{ c.id }}" {% if c.id == selected_child.id %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    {% endif %}
+</div>
+
+<p style="color:#666; font-size:14px; margin-bottom:20px;">
+    {{ selected_child.name }} (Class {{ selected_child.class_name }}) ke liye available exams.
+</p>
+
+{% for e in exams %}
+<div style="background:white; padding:20px; border-radius:10px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+        <div>
+            <h3 style="margin:0 0 5px 0; color:#1e293b;">{{ e.title }}</h3>
+            <div style="font-size:13px; color:#666;">
+                ⏱️ {{ e.duration_minutes }} mins | 📝 {{ e.total_marks }} Marks
+            </div>
+        </div>
+        
+        <div style="text-align:right;">
+            {% if e.attempt and e.attempt.status == 'submitted' %}
+                <div style="color:#10b981; font-weight:bold; margin-bottom:10px;">Score: {{ e.attempt.score }} / {{ e.total_marks }}</div>
+                <a href="/parent/online-exams/result/{{ e.attempt.id }}" style="display:inline-block; background:#f1f5f9; color:#475569; padding:8px 15px; text-decoration:none; border-radius:5px; font-weight:bold;">View Result</a>
+            {% else %}
+                <a href="/parent/online-exams/start/{{ e.id }}?child_id={{ selected_child.id }}" style="display:inline-block; background:#3b82f6; color:white; padding:8px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">Start Exam</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% else %}
+<div style="background:white; padding:30px; border-radius:10px; text-align:center; color:#666;">
+    Abhi koi published exam nahi hai.
+</div>
+{% endfor %}
+
+{% endblock %}
