@@ -1122,3 +1122,60 @@ def save_medical_record(student_id, data):
         "doctor_phone": data.get("doctor_phone"),
         "notes": data.get("notes")
     }, on_conflict="student_id")
+    # ============================================================
+# PHASE 27: LIBRARY MANAGEMENT
+# ============================================================
+def create_book(data):
+    return db_insert("books", {
+        "title": data.get("title"),
+        "author": data.get("author"),
+        "total_copies": int(data.get("total_copies") or 1),
+        "available_copies": int(data.get("total_copies") or 1)
+    })
+
+def get_books():
+    return db_select("books", order_by="title")
+
+def issue_book(book_id, student_id):
+    book = db_get("books", book_id)
+    if not book or book["available_copies"] <= 0:
+        raise ValueError("Ye book abhi available nahi hai.")
+        
+    # Issue record banao
+    db_insert("book_issues", {
+        "book_id": book_id,
+        "student_id": student_id,
+        "status": "issued"
+    })
+    
+    # Available copies kam karo
+    db_update("books", book_id, {"available_copies": book["available_copies"] - 1})
+
+def return_book(issue_id):
+    issue = db_get("book_issues", issue_id)
+    if not issue or issue["status"] == "returned":
+        raise ValueError("Ye book pehle hi return ho chuki hai.")
+        
+    from datetime import date
+    today = date.today().isoformat()
+    
+    # Status update karo
+    db_update("book_issues", issue_id, {"status": "returned", "return_date": today})
+    
+    # Available copies badhao
+    book = db_get("books", issue["book_id"])
+    if book:
+        db_update("books", book["id"], {"available_copies": book["available_copies"] + 1})
+
+def get_active_issues():
+    issues = db_select("book_issues", {"status": "issued"})
+    
+    # Student aur Book ka naam fetch karo
+    for i in issues:
+        book = db_get("books", i["book_id"])
+        student = db_get("students", i["student_id"])
+        i["book_title"] = book.get("title") if book else "Unknown"
+        i["student_name"] = student.get("name") if student else "Unknown"
+        i["class_name"] = student.get("class_name") if student else "-"
+        
+    return issues
