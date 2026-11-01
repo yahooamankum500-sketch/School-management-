@@ -1167,3 +1167,73 @@ def get_homework_for_class(class_name, section=None):
 
 def delete_homework(homework_id):
     return db_delete("homework", homework_id)
+    # ============================================================
+# PHASE 32: DASHBOARD ANALYTICS (CHARTS)
+# ============================================================
+def get_fee_trend(months=6):
+    # Pichle 6 mahino ki fees collection
+    payments = db_select("fee_payments")
+    month_data = {}
+    
+    for p in payments:
+        month = p.get("month")
+        if month:
+            amount = float(p.get("amount") or 0)
+            month_data[month] = month_data.get(month, 0) + amount
+            
+    # Sort by month and get last 6
+    sorted_months = sorted(month_data.keys())
+    last_6 = sorted_months[-months:] if len(sorted_months) > months else sorted_months
+    
+    labels = last_6
+    values = [month_data[m] for m in last_6]
+    
+    return {"labels": labels, "values": values}
+
+def get_attendance_trend(days=7):
+    # Pichle 7 dino ki average attendance
+    from datetime import date, timedelta
+    attendance = db_select("attendance")
+    
+    date_data = {}
+    for a in attendance:
+        d = a.get("attendance_date")
+        if d:
+            if d not in date_data:
+                date_data[d] = {"total": 0, "present": 0}
+            date_data[d]["total"] += 1
+            if a.get("status") == "present":
+                date_data[d]["present"] += 1
+                
+    # Last 7 days list
+    today = date.today()
+    labels = []
+    values = []
+    
+    for i in range(days-1, -1, -1):
+        d_str = (today - timedelta(days=i)).isoformat()
+        labels.append((today - timedelta(days=i)).strftime("%d %b"))
+        
+        if d_str in date_data and date_data[d_str]["total"] > 0:
+            pct = (date_data[d_str]["present"] / date_data[d_str]["total"]) * 100
+            values.append(round(pct, 1))
+        else:
+            values.append(0)
+            
+    return {"labels": labels, "values": values}
+
+def get_class_distribution():
+    # Har class mein kitne students hain
+    students = db_select("students", {"status": "active"})
+    class_data = {}
+    
+    for s in students:
+        c = s.get("class_name") or "Unassigned"
+        class_data[c] = class_data.get(c, 0) + 1
+        
+    # Sort classes
+    sorted_classes = sorted(class_data.keys())
+    labels = sorted_classes
+    values = [class_data[c] for c in sorted_classes]
+    
+    return {"labels": labels, "values": values}
