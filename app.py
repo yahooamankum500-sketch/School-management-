@@ -67,8 +67,8 @@ from database import get_dashboard_stats
 def dashboard():
     stats = get_dashboard_stats()
     return render_template("dashboard.html", stats=stats)
-    from flask import send_from_directory
-
+    from flask import Flask, send_from_directory
+    
 @app.route('/manifest.json')
 def manifest():
     return send_from_directory('static', 'manifest.json')
