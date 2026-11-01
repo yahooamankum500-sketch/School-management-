@@ -1,28 +1,63 @@
 {% extends "parent/base.html" %}
-{% block title %}Exam Result{% endblock %}
+{% block title %}{{ exam.title }}{% endblock %}
 {% block content %}
 
-<div style="background:white; padding:30px; border-radius:10px; text-align:center; margin-bottom:20px; box-shadow:0 4px 10px rgba(0,0,0,0.05);">
-    <h2 style="color:#1e293b; margin:0 0 10px 0;">{{ exam.title }} Result</h2>
-    <div style="font-size:50px; font-weight:bold; color:#3b82f6; margin:20px 0;">
-        {{ attempt.score }} <span style="font-size:24px; color:#94a3b8;">/ {{ exam.total_marks }}</span>
+<!-- Timer Sticky Bar -->
+<div style="position:sticky; top:0; background:#1e293b; color:white; padding:15px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; z-index:100;">
+    <div>
+        <h2 style="margin:0; font-size:18px;">{{ exam.title }}</h2>
+        <div style="font-size:12px; opacity:0.8;">Total Marks: {{ exam.total_marks }}</div>
     </div>
-    <div style="font-size:16px; color:#475569;">
-        Percentage: <strong>{{ ((attempt.score / exam.total_marks) * 100)|round(1) }}%</strong>
+    <div style="font-size:24px; font-weight:bold; font-family:monospace; background:#334155; padding:5px 15px; border-radius:5px;" id="timer">
+        {{ exam.duration_minutes }}:00
     </div>
-    <a href="/parent/online-exams?child_id={{ attempt.student_id }}" style="display:inline-block; margin-top:20px; background:#f1f5f9; color:#475569; padding:10px 20px; text-decoration:none; border-radius:5px; font-weight:bold;">← Back to Exams</a>
 </div>
 
-<h3 style="color:#1e293b; margin-bottom:15px;">Answer Review</h3>
-{% for a in answers %}
-<div style="background:white; padding:15px; border-radius:8px; margin-bottom:10px; border-left:5px solid {% if a.is_correct %}#10b981{% else %}#ef4444{% endif %};">
-    <div style="font-size:14px; font-weight:bold; color:#1e293b; margin-bottom:8px;">{{ a.question_text }}</div>
-    <div style="font-size:13px; color:#475569;">
-        Aapka Answer: <strong style="color:{% if a.is_correct %}#10b981{% else %}#ef4444{% endif %};">{{ a.selected or 'Not Attempted' }}</strong>
-        {% if not a.is_correct %}
-        <br>Sahi Answer: <strong style="color:#10b981;">{{ a.correct_option }}</strong>
-        {% endif %}
+<form method="POST" id="examForm">
+    {% for q in questions %}
+    <div style="background:white; padding:20px; border-radius:10px; margin-bottom:15px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size:14px; color:#666; margin-bottom:10px;">Q{{ loop.index }}. ({{ q.marks }} Mark{{ 's' if q.marks > 1 }})</div>
+        <div style="font-size:16px; font-weight:bold; color:#1e293b; margin-bottom:15px;">{{ q.question_text }}</div>
+        
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            {% for opt in ['A', 'B', 'C', 'D'] %}
+            <label style="display:flex; align-items:center; gap:10px; padding:10px; border:1px solid #eee; border-radius:5px; cursor:pointer;">
+                <input type="radio" name="q_{{ q.id }}" value="{{ opt }}" required>
+                <span style="font-weight:bold; color:#3b82f6;">{{ opt }}.</span>
+                <span>{{ q['option_' + opt|lower] }}</span>
+            </label>
+            {% endfor %}
+        </div>
     </div>
-</div>
-{% endfor %}
+    {% endfor %}
+
+    <button type="submit" style="background:#10b981; color:white; padding:15px; width:100%; border:none; border-radius:10px; font-size:16px; font-weight:bold; cursor:pointer;" onclick="return confirm('Kya aap exam submit karna chahte hain?');">
+        Submit Exam
+    </button>
+</form>
+
+<script>
+    // Timer Logic
+    let timeParts = "{{ exam.duration_minutes }}:00".split(':');
+    let totalSeconds = parseInt(timeParts[0]) * 60 + parseInt(timeParts[1] || 0);
+    const timerEl = document.getElementById('timer');
+    const form = document.getElementById('examForm');
+
+    const interval = setInterval(() => {
+        if (totalSeconds <= 0) {
+            clearInterval(interval);
+            alert("Time's up! Exam auto-submit ho raha hai.");
+            form.submit();
+            return;
+        }
+        totalSeconds--;
+        let m = Math.floor(totalSeconds / 60);
+        let s = totalSeconds % 60;
+        timerEl.innerText = `${m}:${s < 10 ? '0'+s : s}`;
+        
+        if (totalSeconds < 60) {
+            timerEl.style.background = '#ef4444'; // Red color in last minute
+        }
+    }, 1000);
+</script>
 {% endblock %}
