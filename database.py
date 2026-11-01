@@ -738,3 +738,46 @@ def get_timetable(class_name):
 
 def delete_timetable_entry(entry_id):
     return db_delete("timetable", entry_id)
+    # ============================================================
+# PHASE 18: FEE DISCOUNTS
+# ============================================================
+def add_discount(student_id, name, dtype, value):
+    return db_insert("student_discounts", {
+        "student_id": student_id,
+        "discount_name": name,
+        "discount_type": dtype,
+        "discount_value": float(value)
+    })
+
+def get_student_discounts(student_id):
+    return db_select("student_discounts", {"student_id": student_id})
+
+def delete_discount(discount_id):
+    return db_delete("student_discounts", discount_id)
+
+def calculate_student_fee(student_id, class_name):
+    # 1. Class ki total fees nikaalo
+    structures = db_select("fee_structure", {"class_name": class_name})
+    base_fee = sum(float(s.get("amount") or 0) for s in structures)
+    
+    if base_fee == 0:
+        return {"base_fee": 0, "discount": 0, "final_fee": 0}
+
+    # 2. Us student ke discounts nikaalo
+    discounts = get_student_discounts(student_id)
+    
+    total_discount_amount = 0
+    for d in discounts:
+        if d["discount_type"] == "percent":
+            total_discount_amount += (base_fee * (float(d["discount_value"]) / 100))
+        else:
+            total_discount_amount += float(d["discount_value"])
+            
+    # Final fee 0 se kam nahi ho sakti
+    final_fee = max(base_fee - total_discount_amount, 0)
+    
+    return {
+        "base_fee": base_fee,
+        "discount": total_discount_amount,
+        "final_fee": final_fee
+    }
