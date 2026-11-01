@@ -1084,3 +1084,21 @@ def get_backup_data():
             backup["data"][t] = []
             
     return json.dumps(backup, indent=2, default=str)
+    # ============================================================
+# PHASE 16: SCHOOL SETTINGS
+# ============================================================
+def get_settings():
+    rows = db_select("settings", {"id": 1})
+    if not rows:
+        return {"school_name": "My School", "tagline": "", "address": "", "phone": "", "email": "", "logo_url": ""}
+    return rows[0]
+
+def update_settings(data):
+    return db_update("settings", 1, {
+        "school_name": data.get("school_name"),
+        "tagline": data.get("tagline"),
+        "address": data.get("address"),
+        "phone": data.get("phone"),
+        "email": data.get("email"),
+        "logo_url": data.get("logo_url")
+    })
