@@ -1,1 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px;">
+    
+    <!-- LEFT: Add Expense Form -->
+    <div>
+        <div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+            <h3>Record New Expense</h3>
+            <form method="POST">
+                <label style="font-size:13px; color:#666;">Category *</label>
+                <select name="category" required style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                    <option value="">Select Category</option>
+                    <option value="Rent">Rent</option>
+                    <option value="Utilities">Utilities (Bijli/Pani)</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Stationery">Stationery</option>
+                    <option value="Transport">Transport</option>
+                    <option value="Events">Events</option>
+                    <option value="Other">Other</option>
+                </select>
+                
+                <label style="font-size:13px; color:#666;">Description</label>
+                <input type="text" name="description" placeholder="e.g. Building repair" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                
+                <label style="font-size:13px; color:#666;">Amount (₹) *</label>
+                <input type="number" name="amount" required placeholder="5000" style="width:100%; padding:8px; margin-bottom:10px; border:1px solid #ccc; border-radius:5px;">
+                
+                <label style="font-size:13px; color:#666;">Date</label>
+                <input type="date" name="expense_date" value="{{ today }}" required style="width:100%; padding:8px; margin-bottom:15px; border:1px solid #ccc; border-radius:5px;">
+                
+                <button type="submit" style="background:#ef4444; color:white; padding:10px 15px; border:none; border-radius:5px; cursor:pointer; width:100%; font-weight:bold;">+ Add Expense</button>
+            </form>
+        </div>
+        
+        <a href="/expenses/pnl?month={{ selected_month }}" style="display:block; text-align:center; background:#10b981; color:white; padding:12px; text-decoration:none; border-radius:8px; font-weight:bold;">📊 View P&L Report</a>
+    </div>
 
+    <!-- RIGHT: Expense List -->
+    <div style="background:white; padding:20px; border-radius:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3>Expense History</h3>
+            <form method="GET" style="display:flex; gap:10px;">
+                <input type="month" name="month" value="{{ selected_month }}" required style="padding:6px; border:1px solid #ccc; border-radius:5px;">
+                <button type="submit" style="background:#1e293b; color:white; padding:6px 12px; border:none; border-radius:5px; cursor:pointer;">Filter</button>
+            </form>
+        </div>
+        
+        <div style="background:#fee2e2; padding:10px; border-radius:5px; margin-bottom:15px; color:#991b1b; font-weight:bold;">
+            Total Expense for {{ selected_month }}: ₹{{ "%.0f"|format(total_expense) }}
+        </div>
+
+        <table style="width:100%; border-collapse:collapse;">
+            <tr style="background:#f8fafc;">
+                <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Date</th>
+                <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Category</th>
+                <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Description</th>
+                <th style="padding:10px; text-align:right; border-bottom:1px solid #ddd;">Amount</th>
+            </tr>
+            {% for e in expenses %}
+            <tr>
+                <td style="padding:10px; border-bottom:1px solid #eee; font-size:13px;">{{ e.expense_date }}</td>
+                <td style="padding:10px; border-bottom:1px solid #eee;"><strong>{{ e.category }}</strong></td>
+                <td style="padding:10px; border-bottom:1px solid #eee; font-size:13px; color:#666;">{{ e.description or '-' }}</td>
+                <td style="padding:10px; border-bottom:1px solid #eee; text-align:right; color:#ef4444; font-weight:bold;">₹{{ "%.0f"|format(e.amount) }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" style="padding:20px; text-align:center; color:#666;">Is month koi expense record nahi hai.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>
+{% endblock %}
