@@ -344,7 +344,7 @@ def get_child_pending_fees(student_id):
     paid = sum(float(p.get("amount") or 0) for p in payments)
     
     return max(due - paid, 0)
-    # ============================================================
+# ============================================================
 # PHASE 8: TEACHER PORTAL
 # ============================================================
 def create_teacher_account(name, phone, password, assigned_class, assigned_section):
@@ -376,7 +376,7 @@ def get_teacher_students(assigned_class, assigned_section):
     if assigned_section:
         filters["section"] = assigned_section
     return db_select("students", filters, order_by="roll_no")
-    # ============================================================
+# ============================================================
 # PHASE 9: LIBRARY MANAGEMENT
 # ============================================================
 def create_book(data):
@@ -435,7 +435,7 @@ def get_active_issues():
         i["class_name"] = student.get("class_name") if student else "-"
         
     return issues
-    # ============================================================
+# ============================================================
 # PHASE 10: TRANSPORT / BUS ROUTES
 # ============================================================
 def create_bus_route(data):
@@ -505,7 +505,7 @@ def get_students_on_route(route_id):
                 "pickup_time": stop.get("pickup_time")
             })
     return result
-    # ============================================================
+# ============================================================
 # PHASE 11: HOSTEL MANAGEMENT
 # ============================================================
 def create_hostel(data):
@@ -585,7 +585,7 @@ def get_hostel_inmates(hostel_id):
                 "check_in": a["created_at"][:10]
             })
     return result
-    # ============================================================
+# ============================================================
 # PHASE 12: STAFF & SALARY MANAGEMENT
 # ============================================================
 def create_staff(data):
@@ -639,7 +639,7 @@ def mark_salary_paid(record_id):
         "status": "paid",
         "paid_at": datetime.now().isoformat()
     })
-    # ============================================================
+# ============================================================
 # PHASE 13: EXPENSES & PROFIT/LOSS
 # ============================================================
 def create_expense(data):
@@ -687,7 +687,7 @@ def get_pnl(month):
         "net": net_profit,
         "is_profit": net_profit >= 0
     }
-    # ============================================================
+# ============================================================
 # PHASE 14: DASHBOARD ANALYTICS
 # ============================================================
 def get_dashboard_stats():
@@ -738,7 +738,7 @@ def get_timetable(class_name):
 
 def delete_timetable_entry(entry_id):
     return db_delete("timetable", entry_id)
-    # ============================================================
+# ============================================================
 # PHASE 18: FEE DISCOUNTS
 # ============================================================
 def add_discount(student_id, name, dtype, value):
@@ -781,7 +781,7 @@ def calculate_student_fee(student_id, class_name):
         "discount": total_discount_amount,
         "final_fee": final_fee
     }
-    # ============================================================
+# ============================================================
 # PHASE 19: STAFF ATTENDANCE & LEAVES
 # ============================================================
 def mark_staff_attendance(staff_id, date_str, status):
@@ -831,7 +831,7 @@ def get_leave_requests(status=None):
 
 def update_leave_status(leave_id, status):
     return db_update("leave_requests", leave_id, {"status": status})
-    # ============================================================
+# ============================================================
 # PHASE 20: EVENTS & CALENDAR
 # ============================================================
 def create_event(data):
@@ -856,7 +856,7 @@ def get_events(limit=50):
 
 def delete_event(event_id):
     return db_delete("events", event_id)
-    # ============================================================
+# ============================================================
 # PHASE 21: REPORTS & DATA EXPORT
 # ============================================================
 def get_fee_defaulters_data(month):
@@ -908,7 +908,7 @@ def get_fee_collection_data(month):
             "date": p.get("paid_at")[:10] if p.get("paid_at") else "-"
         })
     return result
-    # ============================================================
+# ============================================================
 # PHASE 23: ONLINE EXAMS (MCQ)
 # ============================================================
 def create_online_exam(data):
@@ -960,7 +960,7 @@ def delete_exam_question(q_id, exam_id):
     all_qs = db_select("exam_questions", {"exam_id": exam_id})
     total = sum(int(x.get("marks") or 1) for x in all_qs)
     db_update("online_exams", exam_id, {"total_marks": total})
-    # ============================================================
+# ============================================================
 # PHASE 23B: ONLINE EXAMS (STUDENT SIDE)
 # ============================================================
 def get_published_exams_for_class(class_name):
@@ -1031,7 +1031,7 @@ def get_exam_attempt_details(attempt_id):
         })
         
     return {"attempt": attempt, "exam": exam, "answers": detailed_answers}
-    # ============================================================
+# ============================================================
 # PHASE 24: VISITOR MANAGEMENT
 # ============================================================
 def log_visitor_in(name, phone, purpose, meeting_with):
@@ -1058,7 +1058,7 @@ def get_active_visitors():
 def get_visitor_history(limit=50):
     rows = db_select("visitors", order_by="created_at", descending=True, limit=limit)
     return rows
-    # ============================================================
+# ============================================================
 # PHASE 25: DATA BACKUP
 # ============================================================
 def get_backup_data():
@@ -1084,7 +1084,7 @@ def get_backup_data():
             backup["data"][t] = []
             
     return json.dumps(backup, indent=2, default=str)
-    # ============================================================
+# ============================================================
 # PHASE 16: SCHOOL SETTINGS
 # ============================================================
 def get_settings():
@@ -1102,7 +1102,7 @@ def update_settings(data):
         "email": data.get("email"),
         "logo_url": data.get("logo_url")
     })
-    # ============================================================
+# ============================================================
 # PHASE 26: MEDICAL RECORDS
 # ============================================================
 def get_medical_record(student_id):
