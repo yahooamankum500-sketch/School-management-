@@ -38,6 +38,7 @@ app.register_blueprint(expenses_bp)
 @app.route("/")
 def home():
     return redirect(url_for("auth.login"))
+    from database import get_dashboard_stats
 
 @app.route("/dashboard")
 @login_required
