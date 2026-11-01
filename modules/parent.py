@@ -11,6 +11,10 @@ from database import (
     start_exam_attempt, submit_exam_attempt, get_exam_attempt_details,
     get_exam_questions, get_online_exam # Ye pehle se ho sakte hain
 )
+from database import (
+    # ... purane imports ...
+    get_homework_for_class
+)
 
 parent_bp = Blueprint("parent", __name__, url_prefix="/parent")
 
