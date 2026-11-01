@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:flex-end;">
+    <div>
+        <a href="/staff/" style="color:#666; text-decoration:none;">← Back to Staff</a>
+        <h2 style="margin-top:10px;">Salary Dashboard</h2>
+    </div>
+    <form method="GET" action="/staff/salary" style="display:flex; gap:10px;">
+        <input type="month" name="month" value="{{ selected_month }}" required style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+        <button type="submit" style="background:#1e293b; color:white; padding:8px 15px; border:none; border-radius:5px; cursor:pointer;">View Month</button>
+    </form>
+</div>
+
+<div style="background:white; padding:20px; border-radius:8px; margin-bottom:20px;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <h3 style="margin:0;">Month: {{ selected_month }}</h3>
+            <div style="font-size:14px; color:#475569; margin-top:5px;">
+                Total Paid: <strong style="color:#10b981;">₹{{ "%.0f"|format(total_paid) }}</strong> | 
+                Total Pending: <strong style="color:#ef4444;">₹{{ "%.0f"|format(total_pending) }}</strong>
+            </div>
+        </div>
+        <form method="POST" action="/staff/salary">
+            <input type="hidden" name="month" value="{{ selected_month }}">
+            <button type="submit" style="background:#3b82f6; color:white; padding:10px 15px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;" onclick="return confirm('Is month ki salary generate karein?');">⚡ Generate for {{ selected_month }}</button>
+        </form>
+    </div>
+</div>
+
+<div style="background:white; padding:20px; border-radius:8px;">
+    <table style="width:100%; border-collapse:collapse;">
+        <tr style="background:#f8fafc;">
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Staff Name</th>
+            <th style="padding:10px; text-align:left; border-bottom:1px solid #ddd;">Role</th>
+            <th style="padding:10px; text-align:right; border-bottom:1px solid #ddd;">Amount</th>
+            <th style="padding:10px; text-align:center; border-bottom:1px solid #ddd;">Status</th>
+            <th style="padding:10px; text-align:right; border-bottom:1px solid #ddd;">Action</th>
+        </tr>
+        {% for r in records %}
+        <tr>
+            <td style="padding:10px; border-bottom:1px solid #eee;"><strong>{{ r.staff_name }}</strong></td>
+            <td style="padding:10px; border-bottom:1px solid #eee;">{{ r.role }}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee; text-align:right;">₹{{ "%.0f"|format(r.amount) }}</td>
+            <td style="padding:10px; border-bottom:1px solid #eee; text-align:center;">
+                <span style="padding:4px 8px; border-radius:4px; font-size:12px; font-weight:bold; 
+                    background:{% if r.status == 'paid' %}#d1fae5{% else %}#fee2e2{% endif %};
+                    color:{% if r.status == 'paid' %}#065f46{% else %}#991b1b{% endif %};">
+                    {{ r.status|upper }}
+                </span>
+            </td>
+            <td style="padding:10px; border-bottom:1px solid #eee; text-align:right;">
+                {% if r.status == 'pending' %}
+                <form method="POST" action="/staff/salary/pay/{{ r.id }}">
+                    <input type="hidden" name="month" value="{{ selected_month }}">
+                    <button type="submit" style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">Mark Paid</button>
+                </form>
+                {% else %}
+                <small style="color:#666;">{{ r.paid_at[:10] }}</small>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5" style="padding:20px; text-align:center; color:#666;">Is month ki salary generate nahi hui hai.</td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
