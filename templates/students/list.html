@@ -26,10 +26,9 @@
             <td style="padding:10px; border-bottom:1px solid #eee;">{{ s.class_name }} {{ s.section or '' }}</td>
             <td style="padding:10px; border-bottom:1px solid #eee;">{{ s.parent_phone or '-' }}</td>
             <td style="padding:10px; border-bottom:1px solid #eee; text-align:right; white-space:nowrap;">
-                <!-- YAHAN HAIN ID CARD AUR TC KE LINKS -->
+                <a href="/medical/{{ s.id }}" style="color:#ef4444; text-decoration:none; margin-right:10px;">Medical</a>
                 <a href="/id-cards/{{ s.id }}" target="_blank" style="color:#3b82f6; text-decoration:none; margin-right:10px;">ID Card</a>
                 <a href="/id-cards/certificate/{{ s.id }}" target="_blank" style="color:#8b5cf6; text-decoration:none; margin-right:10px;">TC</a>
-                
                 <a href="/students/{{ s.id }}/edit" style="color:#f59e0b; text-decoration:none; margin-right:10px;">Edit</a>
                 <form method="POST" action="/students/{{ s.id }}/delete" style="display:inline;" onsubmit="return confirm('Delete this student?');">
                     <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;">Delete</button>
