@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
+<!-- Header -->
 <div style="margin-bottom: 20px;">
     <h2 style="color: #1e293b; margin: 0;">Dashboard Overview</h2>
     <p style="color: #64748b; font-size: 14px;">Aaj ka aur is month ka quick summary.</p>
 </div>
 
-<!-- Stats Grid -->
+<!-- Stats Grid (Cards) -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
-    
     <!-- Students Card -->
     <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #3b82f6; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
         <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">🎓 Total Students</div>
@@ -42,14 +42,111 @@
     </div>
 </div>
 
-<!-- Quick Actions Area -->
-<div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <h3 style="margin-top: 0; color: #1e293b; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">⚡ Quick Actions</h3>
-    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
-        <a href="/students/add" style="text-decoration: none; background: #eff6ff; color: #1e40af; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">+ Add Student</a>
-        <a href="/fees/collect" style="text-decoration: none; background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">+ Collect Fee</a>
-        <a href="/attendance/" style="text-decoration: none; background: #fef3c7; color: #92400e; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">Mark Attendance</a>
-        <a href="/notices/" style="text-decoration: none; background: #fee2e2; color: #991b1b; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">+ Publish Notice</a>
+<!-- Charts Section -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+    <!-- Fee Trend Chart -->
+    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">Fees Collection (Last 6 Months)</h3>
+        <div style="height: 250px;">
+            <canvas id="feeChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Attendance Trend Chart -->
+    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">Attendance Trend (Last 7 Days)</h3>
+        <div style="height: 250px;">
+            <canvas id="attChart"></canvas>
+        </div>
     </div>
 </div>
+
+<!-- Class Distribution -->
+<div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); max-width: 400px;">
+    <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">Students by Class</h3>
+    <div style="height: 250px; display: flex; justify-content: center;">
+        <canvas id="classChart"></canvas>
+    </div>
+</div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // 1. Fee Trend Chart (Bar Chart)
+    const feeData = {{ fee_trend | tojson }};
+    new Chart(document.getElementById('feeChart'), {
+        type: 'bar',
+        data: {
+            labels: feeData.labels,
+            datasets: [{
+                label: 'Fees Collected (₹)',
+                data: feeData.values,
+                backgroundColor: '#3b82f6',
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    // 2. Attendance Trend Chart (Line Chart)
+    const attData = {{ att_trend | tojson }};
+    new Chart(document.getElementById('attChart'), {
+        type: 'line',
+        data: {
+            labels: attData.labels,
+            datasets: [{
+                label: 'Attendance (%)',
+                data: attData.values,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, max: 100 }
+            }
+        }
+    });
+
+    // 3. Class Distribution (Doughnut Chart)
+    const classData = {{ class_dist | tojson }};
+    new Chart(document.getElementById('classChart'), {
+        type: 'doughnut',
+        data: {
+            labels: classData.labels,
+            datasets: [{
+                data: classData.values,
+                backgroundColor: [
+                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
+                    '#06b6d4', '#f97316', '#ec4899', '#14b8a6', '#a855f7'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right' }
+            }
+        }
+    });
+</script>
+
+<!-- Mobile ke liye grid adjust karo -->
+<style>
+    @media (max-width: 768px) {
+        /* Charts section ko mobile pe upar-niche karne ke liye */
+        .charts-grid { grid-template-columns: 1fr !important; }
+    }
+</style>
 {% endblock %}
