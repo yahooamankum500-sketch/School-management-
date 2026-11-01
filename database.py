@@ -1121,5 +1121,21 @@ def save_medical_record(student_id, data):
         "doctor_name": data.get("doctor_name"),
         "doctor_phone": data.get("doctor_phone"),
         "notes": data.get("notes")
-    }, on_conflict="student_id")
+    }, on_conflict="student_id") 
+# ============================================================
+# PHASE 31: AUDIT LOGS (ACTIVITY TRACKER)
+# ============================================================
+def log_activity(admin_id, admin_name, action, entity, details=""):
+    try:
+        db_insert("audit_logs", {
+            "admin_id": admin_id,
+            "admin_name": admin_name,
+            "action": action,
+            "entity": entity,
+            "details": details
+        })
+    except Exception:
+        pass # Agar log fail ho jaye toh main app crash na ho
 
+def get_audit_logs(limit=100):
+    return db_select("audit_logs", order_by="created_at", descending=True, limit=limit)
