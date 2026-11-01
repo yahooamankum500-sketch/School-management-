@@ -1,1 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:flex-start;">
+    <div>
+        <a href="/online-exams/" style="color:#666; text-decoration:none;">← Back to Exams</a>
+        <h2 style="margin-top:10px;">Manage: {{ exam.title }} (Class {{ exam.class_name }})</h2>
+        <p style="color:#666; font-size:14px;">Total Marks: {{ exam.total_marks }} | Duration: {{ exam.duration_minutes }} mins</p>
+    </div>
+    <form method="POST" action="/online-exams/{{ exam.id }}/toggle">
+        <button type="submit" style="background:{% if exam.is_published %}#ef4444{% else %}#10b981{% endif %}; color:white; padding:10px 15px; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">
+            {% if exam.is_published %}Unpublish Exam{% else %}Publish Exam{% endif %}
+        </button>
+    </form>
+</div>
 
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <!-- LEFT: Add Question Form -->
+    <div style="background:white; padding:20px; border-radius:8px;">
+        <h3>Add New Question</h3>
+        <form method="POST" action="/online-exams/{{ exam.id }}/add-question" style="margin-top:15px;">
+            <div style="margin-bottom:10px;">
+                <label>Question *</label>
+                <textarea name="question_text" required rows="2" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;"></textarea>
+            </div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                <input type="text" name="option_a" required placeholder="Option A" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+                <input type="text" name="option_b" required placeholder="Option B" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+                <input type="text" name="option_c" required placeholder="Option C" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+                <input type="text" name="option_d" required placeholder="Option D" style="padding:8px; border:1px solid #ccc; border-radius:5px;">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:15px;">
+                <div>
+                    <label>Correct Option</label>
+                    <select name="correct_option" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="D">D</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Marks</label>
+                    <input type="number" name="marks" value="1" required style="width:100%; padding:8px; border:1px solid #ccc; border-radius:5px;">
+                </div>
+            </div>
+            
+            <button type="submit" style="background:#3b82f6; color:white; padding:10px 15px; border:none; border-radius:5px; cursor:pointer; width:100%; font-weight:bold;">+ Add Question</button>
+        </form>
+    </div>
+
+    <!-- RIGHT: Questions List -->
+    <div style="background:white; padding:20px; border-radius:8px; max-height:600px; overflow-y:auto;">
+        <h3>Questions ({{ questions|length }})</h3>
+        
+        <div style="display:flex; flex-direction:column; gap:15px; margin-top:15px;">
+            {% for q in questions %}
+            <div style="border:1px solid #eee; padding:15px; border-radius:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <strong style="color:#1e293b; font-size:14px;">Q{{ loop.index }}. {{ q.question_text }}</strong>
+                    <form method="POST" action="/online-exams/{{ exam.id }}/delete-question/{{ q.id }}">
+                        <button type="submit" style="background:none; border:none; color:#ef4444; cursor:pointer;">×</button>
+                    </form>
+                </div>
+                <div style="font-size:12px; margin-top:8px; display:grid; grid-template-columns:1fr 1fr; gap:5px;">
+                    <span style="{% if q.correct_option == 'A' %}color:#10b981; font-weight:bold;{% endif %}">A) {{ q.option_a }}</span>
+                    <span style="{% if q.correct_option == 'B' %}color:#10b981; font-weight:bold;{% endif %}">B) {{ q.option_b }}</span>
+                    <span style="{% if q.correct_option == 'C' %}color:#10b981; font-weight:bold;{% endif %}">C) {{ q.option_c }}</span>
+                    <span style="{% if q.correct_option == 'D' %}color:#10b981; font-weight:bold;{% endif %}">D) {{ q.option_d }}</span>
+                </div>
+            </div>
+            {% else %}
+            <p style="color:#666; text-align:center;">Koi question nahi hai.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
