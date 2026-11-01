@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:white; padding:20px; border-radius:8px; max-width:600px; margin:auto;">
+    <h2>School Settings</h2>
+    <p style="color:#666; font-size:14px; margin-bottom:20px;">Ye details aapke ID Cards, Certificates aur poore Dashboard par dikhengi.</p>
+    
+    <form method="POST">
+        <div style="margin-bottom:15px;">
+            <label>School Name *</label>
+            <input type="text" name="school_name" value="{{ settings.school_name }}" required style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+        </div>
+        
+        <div style="margin-bottom:15px;">
+            <label>Tagline</label>
+            <input type="text" name="tagline" value="{{ settings.tagline or '' }}" placeholder="e.g. Excellence in Education" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:15px;">
+            <div>
+                <label>Phone</label>
+                <input type="text" name="phone" value="{{ settings.phone or '' }}" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+            </div>
+            <div>
+                <label>Email</label>
+                <input type="email" name="email" value="{{ settings.email or '' }}" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+            </div>
+        </div>
+        
+        <div style="margin-bottom:15px;">
+            <label>Address</label>
+            <textarea name="address" rows="2" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">{{ settings.address or '' }}</textarea>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <label>Logo URL (Optional)</label>
+            <input type="url" name="logo_url" value="{{ settings.logo_url or '' }}" placeholder="https://example.com/logo.png" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+            <small style="color:#666;">Image ka direct link daalein (agar aapke paas hai).</small>
+        </div>
+
+        <button type="submit" style="background:#3b82f6; color:white; padding:12px 20px; border:none; border-radius:5px; cursor:pointer; font-weight:bold; width:100%;">
+            Save Settings
+        </button>
+    </form>
+</div>
+{% endblock %}
