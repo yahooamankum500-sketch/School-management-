@@ -1058,3 +1058,29 @@ def get_active_visitors():
 def get_visitor_history(limit=50):
     rows = db_select("visitors", order_by="created_at", descending=True, limit=limit)
     return rows
+    # ============================================================
+# PHASE 25: DATA BACKUP
+# ============================================================
+def get_backup_data():
+    import json
+    from datetime import datetime
+    
+    # Jin tables ka backup chahiye
+    tables = [
+        "admins", "students", "staff", "fee_payments", 
+        "fee_structure", "attendance", "exams", "marks", 
+        "notices", "events", "visitors", "online_exams"
+    ]
+    
+    backup = {
+        "exported_at": datetime.now().isoformat(),
+        "data": {}
+    }
+    
+    for t in tables:
+        try:
+            backup["data"][t] = db_select(t)
+        except Exception:
+            backup["data"][t] = []
+            
+    return json.dumps(backup, indent=2, default=str)
