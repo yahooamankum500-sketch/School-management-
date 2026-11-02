@@ -1,152 +1,55 @@
-{% extends "base.html" %}
+{% extends "parent/base.html" %}
+{% block title %}Dashboard{% endblock %}
 {% block content %}
-<!-- Header -->
-<div style="margin-bottom: 20px;">
-    <h2 style="color: #1e293b; margin: 0;">Dashboard Overview</h2>
-    <p style="color: #64748b; font-size: 14px;">Aaj ka aur is month ka quick summary.</p>
-</div>
 
-<!-- Stats Grid (Cards) -->
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
-    <!-- Students Card -->
-    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #3b82f6; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">🎓 Total Students</div>
-        <div style="font-size: 28px; font-weight: bold; color: #1e293b;">{{ stats.total_students }}</div>
-    </div>
+<h2 style="color:#1e293b; margin-bottom: 20px;">My Children</h2>
 
-    <!-- Fees Card -->
-    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #10b981; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">💰 Fees Collected ({{ stats.current_month }})</div>
-        <div style="font-size: 28px; font-weight: bold; color: #10b981;">₹{{ "%.0f"|format(stats.total_fees) }}</div>
-    </div>
+{% for child in children %}
+<div style="background:white; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+    <h3 style="margin-top:0; color:#3b82f6;">{{ child.name }} (Class {{ child.class_name }})</h3>
+    
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-top:15px;">
+        <!-- Attendance -->
+        <div style="text-align: center; padding: 15px; border-radius: 8px; background: #d1fae5;">
+            <div style="font-size:12px; color:#065f46;">Attendance (This Month)</div>
+            <div style="font-size:24px; font-weight:bold; color:#065f46;">{{ child.attendance.percent }}%</div>
+            <div style="font-size:11px; color:#065f46;">{{ child.attendance.present }}/{{ child.attendance.total }} Days</div>
+        </div>
+        
+        <!-- Fees -->
+        <div style="text-align: center; padding: 15px; border-radius: 8px; background: #fee2e2;">
+            <div style="font-size:12px; color:#991b1b;">Pending Fees</div>
+            <div style="font-size:24px; font-weight:bold; color:#991b1b;">₹{{ "%.0f"|format(child.pending_fees) }}</div>
+            <div style="font-size:11px; color:#991b1b;">This month</div>
+        </div>
 
-    <!-- Expenses Card -->
-    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #ef4444; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">📉 Expenses ({{ stats.current_month }})</div>
-        <div style="font-size: 28px; font-weight: bold; color: #ef4444;">₹{{ "%.0f"|format(stats.total_expenses) }}</div>
-    </div>
-
-    <!-- Attendance Card -->
-    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #f59e0b; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">📅 Aaj ki Attendance</div>
-        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <div>
-                <div style="font-size: 12px; color: #10b981; font-weight: bold;">Present</div>
-                <div style="font-size: 24px; font-weight: bold; color: #10b981;">{{ stats.today_present }}</div>
-            </div>
-            <div style="text-align: right;">
-                <div style="font-size: 12px; color: #ef4444; font-weight: bold;">Absent</div>
-                <div style="font-size: 24px; font-weight: bold; color: #ef4444;">{{ stats.today_absent }}</div>
-            </div>
+        <!-- Marks -->
+        <div style="text-align: center; padding: 15px; border-radius: 8px; background: #dbeafe;">
+            <div style="font-size:12px; color:#1e40af;">Recent Marks</div>
+            {% if child.recent_marks %}
+                <div style="font-size:24px; font-weight:bold; color:#1e40af;">{{ child.recent_marks.marks }}</div>
+                <div style="font-size:11px; color:#1e40af;">{{ child.recent_marks.exam }}</div>
+            {% else %}
+                <div style="font-size:14px; color:#1e40af; margin-top:8px;">No marks yet</div>
+            {% endif %}
         </div>
     </div>
 </div>
-
-<!-- Charts Section -->
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-    <!-- Fee Trend Chart -->
-    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-        <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">Fees Collection (Last 6 Months)</h3>
-        <div style="height: 250px;">
-            <canvas id="feeChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Attendance Trend Chart -->
-    <div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-        <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">Attendance Trend (Last 7 Days)</h3>
-        <div style="height: 250px;">
-            <canvas id="attChart"></canvas>
-        </div>
-    </div>
+{% else %}
+<div style="background:white; padding:20px; border-radius:10px; text-align:center; color:#666;">
+    Aapke phone number se koi student record nahi mila.
 </div>
+{% endfor %}
 
-<!-- Class Distribution -->
-<div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); max-width: 400px;">
-    <h3 style="margin-top: 0; color: #1e293b; font-size: 16px;">Students by Class</h3>
-    <div style="height: 250px; display: flex; justify-content: center;">
-        <canvas id="classChart"></canvas>
-    </div>
+<!-- Notice Board -->
+<h3 style="color:#1e293b; margin-top: 30px;">Recent Notices</h3>
+{% for n in notices %}
+<div style="background:white; padding: 15px; border-radius: 8px; margin-bottom:10px; border-left: 4px solid #3b82f6; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
+    <strong>{{ n.title }}</strong>
+    <p style="font-size:13px; color:#666; margin-bottom:0;">{{ n.content }}</p>
 </div>
+{% else %}
+<p style="color:#666;">Koi notice nahi hai.</p>
+{% endfor %}
 
-<!-- Chart.js Library -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-    // 1. Fee Trend Chart (Bar Chart)
-    const feeData = {{ fee_trend | tojson }};
-    new Chart(document.getElementById('feeChart'), {
-        type: 'bar',
-        data: {
-            labels: feeData.labels,
-            datasets: [{
-                label: 'Fees Collected (₹)',
-                data: feeData.values,
-                backgroundColor: '#3b82f6',
-                borderRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } }
-        }
-    });
-
-    // 2. Attendance Trend Chart (Line Chart)
-    const attData = {{ att_trend | tojson }};
-    new Chart(document.getElementById('attChart'), {
-        type: 'line',
-        data: {
-            labels: attData.labels,
-            datasets: [{
-                label: 'Attendance (%)',
-                data: attData.values,
-                borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true, max: 100 }
-            }
-        }
-    });
-
-    // 3. Class Distribution (Doughnut Chart)
-    const classData = {{ class_dist | tojson }};
-    new Chart(document.getElementById('classChart'), {
-        type: 'doughnut',
-        data: {
-            labels: classData.labels,
-            datasets: [{
-                data: classData.values,
-                backgroundColor: [
-                    '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', 
-                    '#06b6d4', '#f97316', '#ec4899', '#14b8a6', '#a855f7'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'right' }
-            }
-        }
-    });
-</script>
-
-<!-- Mobile ke liye grid adjust karo -->
-<style>
-    @media (max-width: 768px) {
-        /* Charts section ko mobile pe upar-niche karne ke liye */
-        .charts-grid { grid-template-columns: 1fr !important; }
-    }
-</style>
 {% endblock %}
