@@ -1,55 +1,55 @@
-{% extends "parent/base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% extends "base.html" %}
 {% block content %}
+<div style="margin-bottom: 20px;">
+    <h2 style="color: #1e293b; margin: 0;">Dashboard Overview</h2>
+    <p style="color: #64748b; font-size: 14px;">Aaj ka aur is month ka quick summary.</p>
+</div>
 
-<h2 style="color:#1e293b; margin-bottom: 20px;">My Children</h2>
-
-{% for child in children %}
-<div style="background:white; padding:20px; border-radius:10px; margin-bottom:20px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-    <h3 style="margin-top:0; color:#3b82f6;">{{ child.name }} (Class {{ child.class_name }})</h3>
+<!-- Stats Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px;">
     
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:15px; margin-top:15px;">
-        <!-- Attendance -->
-        <div style="text-align: center; padding: 15px; border-radius: 8px; background: #d1fae5;">
-            <div style="font-size:12px; color:#065f46;">Attendance (This Month)</div>
-            <div style="font-size:24px; font-weight:bold; color:#065f46;">{{ child.attendance.percent }}%</div>
-            <div style="font-size:11px; color:#065f46;">{{ child.attendance.present }}/{{ child.attendance.total }} Days</div>
-        </div>
-        
-        <!-- Fees -->
-        <div style="text-align: center; padding: 15px; border-radius: 8px; background: #fee2e2;">
-            <div style="font-size:12px; color:#991b1b;">Pending Fees</div>
-            <div style="font-size:24px; font-weight:bold; color:#991b1b;">₹{{ "%.0f"|format(child.pending_fees) }}</div>
-            <div style="font-size:11px; color:#991b1b;">This month</div>
-        </div>
+    <!-- Students Card -->
+    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #3b82f6; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">🎓 Total Students</div>
+        <div style="font-size: 28px; font-weight: bold; color: #1e293b;">{{ stats.total_students }}</div>
+    </div>
 
-        <!-- Marks -->
-        <div style="text-align: center; padding: 15px; border-radius: 8px; background: #dbeafe;">
-            <div style="font-size:12px; color:#1e40af;">Recent Marks</div>
-            {% if child.recent_marks %}
-                <div style="font-size:24px; font-weight:bold; color:#1e40af;">{{ child.recent_marks.marks }}</div>
-                <div style="font-size:11px; color:#1e40af;">{{ child.recent_marks.exam }}</div>
-            {% else %}
-                <div style="font-size:14px; color:#1e40af; margin-top:8px;">No marks yet</div>
-            {% endif %}
+    <!-- Fees Card -->
+    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #10b981; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">💰 Fees Collected ({{ stats.current_month }})</div>
+        <div style="font-size: 28px; font-weight: bold; color: #10b981;">₹{{ "%.0f"|format(stats.total_fees) }}</div>
+    </div>
+
+    <!-- Expenses Card -->
+    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #ef4444; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">📉 Expenses ({{ stats.current_month }})</div>
+        <div style="font-size: 28px; font-weight: bold; color: #ef4444;">₹{{ "%.0f"|format(stats.total_expenses) }}</div>
+    </div>
+
+    <!-- Attendance Card -->
+    <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid #f59e0b; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+        <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 10px;">📅 Aaj ki Attendance</div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <div style="font-size: 12px; color: #10b981; font-weight: bold;">Present</div>
+                <div style="font-size: 24px; font-weight: bold; color: #10b981;">{{ stats.today_present }}</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; color: #ef4444; font-weight: bold;">Absent</div>
+                <div style="font-size: 24px; font-weight: bold; color: #ef4444;">{{ stats.today_absent }}</div>
+            </div>
         </div>
     </div>
 </div>
-{% else %}
-<div style="background:white; padding:20px; border-radius:10px; text-align:center; color:#666;">
-    Aapke phone number se koi student record nahi mila.
-</div>
-{% endfor %}
 
-<!-- Notice Board -->
-<h3 style="color:#1e293b; margin-top: 30px;">Recent Notices</h3>
-{% for n in notices %}
-<div style="background:white; padding: 15px; border-radius: 8px; margin-bottom:10px; border-left: 4px solid #3b82f6; box-shadow:0 2px 5px rgba(0,0,0,0.05);">
-    <strong>{{ n.title }}</strong>
-    <p style="font-size:13px; color:#666; margin-bottom:0;">{{ n.content }}</p>
+<!-- Quick Actions Area -->
+<div style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <h3 style="margin-top: 0; color: #1e293b; font-size: 16px; border-bottom: 1px solid #eee; padding-bottom: 10px;">⚡ Quick Actions</h3>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px;">
+        <a href="/students/add" style="text-decoration: none; background: #eff6ff; color: #1e40af; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">+ Add Student</a>
+        <a href="/fees/collect" style="text-decoration: none; background: #d1fae5; color: #065f46; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">+ Collect Fee</a>
+        <a href="/attendance/" style="text-decoration: none; background: #fef3c7; color: #92400e; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">Mark Attendance</a>
+        <a href="/notices/" style="text-decoration: none; background: #fee2e2; color: #991b1b; padding: 10px 15px; border-radius: 5px; font-size: 14px; font-weight: bold;">+ Publish Notice</a>
+    </div>
 </div>
-{% else %}
-<p style="color:#666;">Koi notice nahi hai.</p>
-{% endfor %}
-
 {% endblock %}
