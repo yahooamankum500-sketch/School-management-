@@ -64,29 +64,7 @@ app.register_blueprint(homework_bp)
 @app.route("/")
 def home():
     return redirect(url_for("auth.login"))
-
-# Upar imports mein add karo
-from database import (
-    get_dashboard_stats, get_fee_trend, 
-    get_attendance_trend, get_class_distribution
-)
-
-@app.route("/dashboard")
-@login_required
-def dashboard():
-    stats = get_dashboard_stats()
-    fee_trend = get_fee_trend()
-    att_trend = get_attendance_trend()
-    class_dist = get_class_distribution()
-    
-    return render_template(
-        "dashboard.html", 
-        stats=stats, 
-        fee_trend=fee_trend, 
-        att_trend=att_trend, 
-        class_dist=class_dist
-    )
-    
+   
 @app.route('/manifest.json')
 def manifest():
     return send_from_directory('static', 'manifest.json')
